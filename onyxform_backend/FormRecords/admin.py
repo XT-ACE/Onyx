@@ -14,9 +14,9 @@ class CustomUserAdmin(UserAdmin):
         ('Personal info', {
             'fields': (
                 'first_name', 'last_name', 'title', 'age', 'citizenship', 'mobile_number', 
-                'email_address', 'present_address', 'permanent_address', 'country_residence', 'valid_id', 'id_no', 
+                'email_address', 'present_address', 'permanent_address', 'country_residence', 'street_address','valid_id', 'id_no', 
                 'work_industry', 'role', 'income', 
-                 'street_address'  # Newly added fields
+                  # Newly added fields
             )
         }),
         ('Permissions', {'fields': ('is_active', 'is_staff', 'is_superuser', 'groups', 'user_permissions')}),
