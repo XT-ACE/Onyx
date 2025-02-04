@@ -45,6 +45,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -52,18 +53,40 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'corsheaders.middleware.CorsMiddleware',
 ]
 
 CORS_ALLOWED_ORIGINS = [
-    "http://localhost:5173",  # Vue.js development server
+     "http://192.168.1.11:5173",  # Vue.js development server
 ]
-
+CSRF_TRUSTED_ORIGINS = [
+    "http://192.168.1.11:5173"
+]
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework.authentication.TokenAuthentication',
     ],
 }
+CORS_ALLOW_ALL_ORIGINS = True  # Allow all origins (use only for testing)
+CORS_ALLOW_METHODS = [
+    "GET",
+    "POST",
+    "PUT",
+    "PATCH",
+    "DELETE",
+    "OPTIONS"
+]
+
+CORS_ALLOW_HEADERS = [
+    "content-type",
+    "authorization",
+    "x-csrftoken",
+]
+ALLOWED_HOSTS = [
+    '192.168.1.11',  # Your local network IP
+    'localhost',      # Allow localhost
+    '127.0.0.1',      # Allow loopback
+]
+
 CORS_ALLOW_CREDENTIALS = True
 ROOT_URLCONF = 'onyxform_backend.urls'
 

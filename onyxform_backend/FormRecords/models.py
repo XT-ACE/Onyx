@@ -20,8 +20,8 @@ class CustomUser(AbstractUser):
     first_name = models.CharField(max_length=100, blank=True, null=True)
     age = models.IntegerField(null=True, blank=True)
     citizenship = models.CharField(max_length=100, blank=True, null=True)
+    countryCode = models.CharField(max_length=15, blank=True, null=True)
     mobile_number = models.CharField(max_length=15, blank=True, null=True)
-    country_residence = models.CharField(max_length=100, blank=True, null=True)
     valid_id = models.CharField(max_length=100, blank=True, null=True)
     id_no = models.CharField(max_length=100, blank=True, null=True)
     work_industry = models.CharField(max_length=100, blank=True, null=True)
@@ -29,9 +29,15 @@ class CustomUser(AbstractUser):
     income = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
 
     # New fields
-    present_address = models.BooleanField(default=False)
-    permanent_address = models.BooleanField(default=False)
     street_address = models.CharField(max_length=255, blank=True, null=True)  # New field
+    city_residence = models.CharField(max_length=255, blank=True, null=True) 
+    state_residence = models.CharField(max_length=255, blank=True, null=True)
+    same_address = models.BooleanField(default=False)  # Checkbox to determine if addresses are the same
+    permanent_street_address = models.CharField(max_length=255, blank=True, null=True)
+    permanent_city = models.CharField(max_length=100, blank=True, null=True)
+    permanent_state = models.CharField(max_length=100, blank=True, null=True)
+    nationality = models.CharField(max_length=255, blank=True, null=True) 
+
 
     # Fix related_name conflict with the default User model
     groups = models.ManyToManyField(

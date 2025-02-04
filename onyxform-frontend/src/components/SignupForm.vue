@@ -71,10 +71,10 @@
           <span v-if="formData.age && formData.age < 21" class="error-message">
             You must be 21 or older
           </span>
- <div class="dropdown" ref="dropdown">
+          <div class="dropdown" ref="dropdown">
     <input
       type="text"
-      v-model="searchQuery"
+      v-model="formData.nationality"
       placeholder="Search Nationality"
       @focus="isOpen = true"
       @input="filterNationalities"
@@ -95,29 +95,42 @@
   </div>
   </div>
         <!-- Step 3: Contact Information -->
-<div class="contact-info" v-if="currentStep === 3">
-  <h2>Step 3: Contact Information</h2>
-  <input v-model="formData.mobile_number" placeholder="Mobile Number" required />
-  <input v-model="formData.email_address" type="email" placeholder="Email Address" required />
-  <input v-model="formData.street_address" placeholder="Street Address" required />
-  <input v-model="formData.city_residence" placeholder="City" required />
-  <input v-model="formData.state_residence" placeholder="Enter your region/province/state" required />
+        <div class="contact-info" v-if="currentStep === 3">
+    <h2>Step 3: Contact Information</h2>
+    <div class="country-code-wrapper">
+      <input 
+        v-model="formData.mobile_number" 
+        type="text" 
+        placeholder="Enter your phone number" 
+        required 
+        autocomplete="off"
+    />
+    <select v-model="formData.countryCode" required> 
+      <option value="" disabled selected>▼</option>
+        <option v-for="code in countryCodes" :value="code.value" :key="code.value">{{ code.label }}</option>
+    </select>
+    </div>
+   
+    <input v-model="formData.email_address" type="email" placeholder="Email Address" required />
+    <input v-model="formData.street_address" placeholder="Street Address" required />
+    <input v-model="formData.city_residence" placeholder="City" required />
+    <input v-model="formData.state_residence" placeholder="Enter your region/province/state" required />
 
-  <div>
-    <br>
-    <label>Is your present address the same as your permanent address?</label><br>
-    <input type="checkbox" v-model="sameAddress" />
-    <label>Yes</label>
-  </div>
+    <div>
+      <br>
+      <label>Is your present address the same as your permanent address?</label><br>
+      <input type="checkbox" v-model="formData.same_address" />
+      <label>Yes</label>
+    </div>
 
-  <!-- If addresses are not the same, show the present address form -->
-  <div class="contact-info" v-if="!sameAddress">
-    <h3>Permanent Address</h3>
-    <input v-model="formData.permanent_street_address" placeholder="Street Address" required />
-    <input v-model="formData.permanent_city" placeholder="City" required />
-    <input v-model="formData.permanent_state" placeholder="Region/Province/State" required />
-  </div>
-
+    <!-- Always show the permanent address fields -->
+    <div class="contact-info">
+      <h3>Permanent Address</h3>
+      <input v-model="formData.permanent_street_address" :readonly="formData.same_address" placeholder="Street Address" required />
+      <input v-model="formData.permanent_city" :readonly="formData.same_address" placeholder="City" required />
+      <input v-model="formData.permanent_state" :readonly="formData.same_address" placeholder="Region/Province/State" required />
+    </div>
+  
   <div class="contact-info-btn">
     <button @click="prevStep">Back</button>
     <button @click="nextStep">Next</button>
@@ -128,9 +141,38 @@
         <!-- Step 4: ID Verification -->
         <div v-if="currentStep === 4">
           <h2>Step 4: ID Verification</h2>
-          <input v-model="formData.valid_id" placeholder="Valid ID" required />
-          <input v-model="formData.id_no" placeholder="ID No" required />
-          <input v-model="formData.photo_id" placeholder="Photo ID" required />
+          <select v-model="formData.valid_id" required>
+  <option value="" disabled selected>Select a Valid ID</option>
+  <option value="Passport">Passport</option>
+  <option value="Drivers License">Driver's License</option>
+  <option value="UMID">Unified Multi-Purpose ID (UMID)</option>
+  <option value="National ID">National ID</option>
+  <option value="SSS Card">SSS Card</option>
+  <option value="GSIS eCard">GSIS eCard</option>
+  <option value="PRC ID">PRC ID</option>
+  <option value="Voters ID">Voter's ID or Voter's Certificate</option>
+  <option value="IBP ID">IBP ID</option>
+  <option value="OWWA ID">OWWA ID</option>
+  <option value="OFW Card">OFW Card</option>
+</select>
+
+          <input v-model="formData.id_no" placeholder="Valid ID No" required />
+          <input v-model="formData.id_no" placeholder="Valid until" required />
+          <input 
+  type="file" 
+  accept="image/*" 
+  capture="environment" 
+  @change="handleFileUpload" 
+  required
+/>
+<input v-model="formData.latest_pic" placeholder="Capture or Upload Your Recent Photo" required />
+          <input 
+  type="file" 
+  accept="image/*" 
+  capture="environment" 
+  @change="handleFileUpload" 
+  required
+/>
           <input v-model="formData.work_industry" placeholder="Work Industry" required />
           <input v-model="formData.role" placeholder="Role" required />
           <input v-model="formData.income" type="number" placeholder="Income" required />
@@ -170,7 +212,6 @@ export default {
   data() {
     return {
       currentStep: 1, // Track the current step
-      sameAddress: true, // Default to true (addresses are the same)
       showErrors: false, // Flag to show validation errors
       formData: {
         title: "",
@@ -178,13 +219,17 @@ export default {
         first_name: "",
         age: "",
         citizenship: "",
-        mobile_number: "",
+        countryCode: '',  
+        mobile_number: '',
         email_address: "",
         present_address: false,
-        permanent_address: false,
         street_address: "",
         city_residence: "",
         state_residence: "",
+        same_address: false,
+        permanent_street_address: "",
+        permanent_city: "",
+        permanent_state: "",
         valid_id: "",
         id_no: "",
         photo_id: "",
@@ -193,9 +238,10 @@ export default {
         income: "",
         agreeToPrivacy: false,
         isOver21: false,
+        nationality: "",
       },
       isOpen: false,
-      searchQuery: "",
+      nationality: "",
       selectedNationality: "",
       nationalities: [
   { name: 'Afghan' },
@@ -383,6 +429,143 @@ export default {
   { name: 'Zimbabwean' },
 ],
 filteredNationalities: [],
+countryCodes: [
+            { value: '+1', label: '+1 (United States, Canada, Mexico, etc.)' },
+            { value: '+44', label: '+44 (United Kingdom)' },
+            { value: '+91', label: '+91 (India)' },
+            { value: '+61', label: '+61 (Australia)' },
+            { value: '+81', label: '+81 (Japan)' },
+            { value: '+33', label: '+33 (France)' },
+            { value: '+49', label: '+49 (Germany)' },
+            { value: '+34', label: '+34 (Spain)' },
+            { value: '+39', label: '+39 (Italy)' },
+            { value: '+55', label: '+55 (Brazil)' },
+            { value: '+27', label: '+27 (South Africa)' },
+            { value: '+86', label: '+86 (China)' },
+            { value: '+7', label: '+7 (Russia, Kazakhstan)' },
+            { value: '+52', label: '+52 (Mexico)' },
+            { value: '+64', label: '+64 (New Zealand)' },
+            { value: '+966', label: '+966 (Saudi Arabia)' },
+            { value: '+82', label: '+82 (South Korea)' },
+            { value: '+20', label: '+20 (Egypt)' },
+            { value: '+41', label: '+41 (Switzerland)' },
+            { value: '+31', label: '+31 (Netherlands)' },
+            { value: '+46', label: '+46 (Sweden)' },
+            { value: '+48', label: '+48 (Poland)' },
+            { value: '+32', label: '+32 (Belgium)' },
+            { value: '+353', label: '+353 (Ireland)' },
+            { value: '+62', label: '+62 (Indonesia)' },
+            { value: '+54', label: '+54 (Argentina)' },
+            { value: '+56', label: '+56 (Chile)' },
+            { value: '+64', label: '+64 (New Zealand)' },
+            { value: '+380', label: '+380 (Ukraine)' },
+            { value: '+92', label: '+92 (Pakistan)' },
+            { value: '+63', label: '+63 (Philippines)' },
+            { value: '+977', label: '+977 (Nepal)' },
+            { value: '+98', label: '+98 (Iran)' },
+            { value: '+963', label: '+963 (Syria)' },
+            { value: '+254', label: '+254 (Kenya)' },
+            { value: '+855', label: '+855 (Cambodia)' },
+            { value: '+234', label: '+234 (Nigeria)' },
+            { value: '+254', label: '+254 (Kenya)' },
+            { value: '+359', label: '+359 (Bulgaria)' },
+            { value: '+375', label: '+375 (Belarus)' },
+            { value: '+354', label: '+354 (Iceland)' },
+            { value: '+977', label: '+977 (Nepal)' },
+            { value: '+995', label: '+995 (Georgia)' },
+            { value: '+974', label: '+974 (Qatar)' },
+            { value: '+850', label: '+850 (North Korea)' },
+            { value: '+966', label: '+966 (Saudi Arabia)' },
+            { value: '+1', label: '+1 (United States, Canada, Mexico, etc.)' },
+            { value: '+82', label: '+82 (South Korea)' },
+            { value: '+212', label: '+212 (Morocco)' },
+            { value: '+971', label: '+971 (United Arab Emirates)' },
+            { value: '+60', label: '+60 (Malaysia)' },
+            { value: '+91', label: '+91 (India)' },
+            { value: '+93', label: '+93 (Afghanistan)' },
+            { value: '+973', label: '+973 (Bahrain)' },
+            { value: '+1242', label: '+1242 (Bahamas)' },
+            { value: '+267', label: '+267 (Botswana)' },
+            { value: '+855', label: '+855 (Cambodia)' },
+            { value: '+226', label: '+226 (Burkina Faso)' },
+            { value: '+228', label: '+228 (Togo)' },
+            { value: '+234', label: '+234 (Nigeria)' },
+            { value: '+261', label: '+261 (Madagascar)' },
+            { value: '+685', label: '+685 (Samoa)' },
+            { value: '+255', label: '+255 (Tanzania)' },
+            { value: '+678', label: '+678 (Vanuatu)' },
+            { value: '+1849', label: '+1849 (Dominican Republic)' },
+            { value: '+1868', label: '+1868 (Trinidad and Tobago)' },
+            { value: '+1880', label: '+1880 (Barbados)' },
+            { value: '+1', label: '+1 (USA, Canada, Mexico, etc.)' },
+            { value: '+44', label: '+44 (United Kingdom)' },
+            { value: '+971', label: '+971 (UAE)' },
+            { value: '+54', label: '+54 (Argentina)' },
+            { value: '+62', label: '+62 (Indonesia)' },
+            { value: '+93', label: '+93 (Afghanistan)' },
+            { value: '+54', label: '+54 (Argentina)' },
+            { value: '+96', label: '+96 (Seychelles)' },
+            { value: '+81', label: '+81 (Japan)' },
+            { value: '+222', label: '+222 (Mauritania)' },
+            { value: '+43', label: '+43 (Austria)' },
+            { value: '+501', label: '+501 (Belize)' },
+            { value: '+506', label: '+506 (Costa Rica)' },
+            { value: '+503', label: '+503 (El Salvador)' },
+            { value: '+504', label: '+504 (Honduras)' },
+            { value: '+505', label: '+505 (Nicaragua)' },
+            { value: '+507', label: '+507 (Panama)' },
+            { value: '+508', label: '+508 (Saint Pierre and Miquelon)' },
+            { value: '+509', label: '+509 (Haiti)' },
+            { value: '+591', label: '+591 (Bolivia)' },
+            { value: '+593', label: '+593 (Ecuador)' },
+            { value: '+594', label: '+594 (French Guiana)' },
+            { value: '+595', label: '+595 (Paraguay)' },
+            { value: '+596', label: '+596 (Martinique)' },
+            { value: '+597', label: '+597 (Suriname)' },
+            { value: '+598', label: '+598 (Uruguay)' },
+            { value: '+599', label: '+599 (Curaçao)' },
+            { value: '+20', label: '+20 (Egypt)' },
+            { value: '+33', label: '+33 (France)' },
+            { value: '+40', label: '+40 (Romania)' },
+            { value: '+41', label: '+41 (Switzerland)' },
+            { value: '+47', label: '+47 (Norway)' },
+            { value: '+48', label: '+48 (Poland)' },
+            { value: '+49', label: '+49 (Germany)' },
+            { value: '+51', label: '+51 (Peru)' },
+            { value: '+52', label: '+52 (Mexico)' },
+            { value: '+53', label: '+53 (Cuba)' },
+            { value: '+54', label: '+54 (Argentina)' },
+            { value: '+55', label: '+55 (Brazil)' },
+            { value: '+56', label: '+56 (Chile)' },
+            { value: '+57', label: '+57 (Colombia)' },
+            { value: '+58', label: '+58 (Venezuela)' },
+            { value: '+59', label: '+59 (Dutch Caribbean)' },
+            { value: '+60', label: '+60 (Malaysia)' },
+            { value: '+61', label: '+61 (Australia)' },
+            { value: '+62', label: '+62 (Indonesia)' },
+            { value: '+63', label: '+63 (Philippines)' },
+            { value: '+64', label: '+64 (New Zealand)' },
+            { value: '+65', label: '+65 (Singapore)' },
+            { value: '+66', label: '+66 (Thailand)' },
+            { value: '+67', label: '+67 (Western Australia)' },
+            { value: '+68', label: '+68 (Timor Leste)' },
+            { value: '+69', label: '+69 (Indian Ocean Territories)' },
+            { value: '+70', label: '+70 (Romania)' },
+            { value: '+71', label: '+71 (Norway)' },
+            { value: '+72', label: '+72 (Fiji)' },
+            { value: '+73', label: '+73 (Seychelles)' },
+            { value: '+74', label: '+74 (Turkmenistan)' },
+            { value: '+75', label: '+75 (Uzbekistan)' },
+            { value: '+678', label: '+678 (Vanuatu)' },
+            { value: '+379', label: '+379 (Vatican City)'},
+            { value: '+58', label: '+58 (Venezuela)'},
+            { value: '+84', label: '+84 (Vietnam)'},
+            { value: '+1', label: '+1 (Virgin Islands)'},
+            { value: '+681', label: '+681 (Wallis and Futuna)'},
+            { value: '+967', label: '+967 (Yemen)'},
+            { value: '+260', label: '+260 (Zambia)'},
+            { value: '+263', label: '+263 (Zimbabwe)'},
+        ]
     };
   },
   methods: {
@@ -402,8 +585,8 @@ filteredNationalities: [],
 
     selectNationality(name) {
       this.selectedNationality = name;
-      this.searchQuery = name;
-      this.isOpen = false;
+      this.formData.nationality = name;  // Set selected nationality to form data
+      this.isOpen = false;  // Close dropdown
     },
 
     validateStep() {
@@ -487,7 +670,7 @@ filteredNationalities: [],
     },
     async submitForm() {
       try {
-        await axios.post("http://127.0.0.1:8000/api/form-records/", this.formData);
+        await axios.post("http://192.168.1.11:8000/api/form-records/", this.formData);
         alert("Form submitted successfully!");
         this.resetForm();
       } catch (error) {
@@ -500,21 +683,40 @@ filteredNationalities: [],
       this.showErrors = false;
     },
     filterNationalities() {
-      this.filteredNationalities = this.nationalities.filter(nationality =>
-        nationality.toLowerCase().includes(this.searchQuery.toLowerCase())
+      this.filteredNationalities = this.nationalities.filter((nationality) =>
+      nationality.name.toLowerCase().includes(this.formData.nationality.toLowerCase())
       );
     }
   },
   computed: {
     filteredNationalities() {
       return this.nationalities.filter((item) =>
-        item.name.toLowerCase().includes(this.searchQuery.toLowerCase())
+        item.name.toLowerCase().includes(this.formData.nationality.toLowerCase())
       );
     },
   },
   mounted() {
     this.filteredNationalities = this.nationalities; // Load all initially
   },
+  watch: {
+    "formData.same_address"(newValue) {
+      if (newValue) {
+        // Autofill the permanent address when the checkbox is checked
+        this.formData.permanent_street_address = this.formData.street_address;
+        this.formData.permanent_city = this.formData.city_residence;
+        this.formData.permanent_state = this.formData.state_residence;
+      }
+    },
+    "formData.street_address"(newValue) {
+      if (this.formData.same_address) this.formData.permanent_street_address = newValue;
+    },
+    "formData.city_residence"(newValue) {
+      if (this.formData.same_address) this.formData.permanent_city = newValue;
+    },
+    "formData.state_residence"(newValue) {
+      if (this.formData.same_address) this.formData.permanent_state = newValue;
+    }
+  }
 };
 </script>
 
@@ -560,6 +762,41 @@ button{
 
 button:hover{
   background-color: #ffb013;
+}
+.country-code-wrapper {
+  position: relative;
+    width: 350px;
+    display: flex;
+    align-items: center;
+   
+    border-radius: 5px;
+    overflow: hidden;
+    background: white;
+}
+
+.country-code-wrapper input {
+  flex: 1;
+    padding: 10px;
+    padding-right: 60px; /* Space for the select dropdown */
+    border: none;
+    outline: none;
+    font-size: 16px;
+    border: 1px solid grey;
+}
+
+.country-code-wrapper select {
+  position: absolute;
+    right: 2.5rem;
+    top: 1.5rem;
+    height: 20px;
+    width: 50px;
+    border: none;
+    padding: 0 10px;
+    font-size: 16px;
+    cursor: pointer;
+    outline: none;
+    appearance: none;
+    
 }
 .form-consents p{
   font-weight: bold;
