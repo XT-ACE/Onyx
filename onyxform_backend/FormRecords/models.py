@@ -9,7 +9,7 @@ class CustomUser(AbstractUser):
     REQUIRED_FIELDS = []  
 
     # Make 'email_address' unique
-    email_address = models.EmailField(max_length=255, unique=True, blank=True, null=True)
+    email_address = models.EmailField(max_length=255, unique=True, blank=False, null=False)
 
     # Optional: username can still be left as non-unique and nullable for regular users
     username = models.CharField(max_length=100, blank=True, null=True, unique=False)
@@ -20,8 +20,7 @@ class CustomUser(AbstractUser):
     first_name = models.CharField(max_length=100, blank=True, null=True)
     age = models.IntegerField(null=True, blank=True)
     citizenship = models.CharField(max_length=100, blank=True, null=True)
-    countryCode = models.CharField(max_length=15, blank=True, null=True)
-    mobile_number = models.CharField(max_length=15, blank=True, null=True)
+    mobile_number = models.CharField(max_length=20, blank=True, null=True)
     valid_id = models.CharField(max_length=100, blank=True, null=True)
     id_no = models.CharField(max_length=100, blank=True, null=True)
     work_industry = models.CharField(max_length=100, blank=True, null=True)
