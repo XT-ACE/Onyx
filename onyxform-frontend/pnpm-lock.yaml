@@ -20,6 +20,9 @@ importers:
       vue-select:
         specifier: ^3.20.3
         version: 3.20.3(vue@3.5.13(typescript@5.6.3))
+      vue-signature-pad:
+        specifier: ^3.0.2
+        version: 3.0.2(vue@3.5.13(typescript@5.6.3))
       vue-tel-input:
         specifier: ^9.3.0
         version: 9.3.0(libphonenumber-js@1.11.19)(vue@3.5.13(typescript@5.6.3))
@@ -455,6 +458,9 @@ packages:
   magic-string@0.30.17:
     resolution: {integrity: sha512-sNPKHvyjVf7gyjwS4xGTaW/mCnF8wnjtifKBEhxfZ7E/S8tQ0rssrwGNn6q8JH/ohItJfSQp9mBtQYuTlH5QnA==}
 
+  merge-images@1.2.0:
+    resolution: {integrity: sha512-hEGvgnTdXr08uzGvEArxRsKpy7WmozM73YaSi4s5IYF4LxrhANpqfHaz9CgBZ5+0+s2NsjPnPdStz3aCc0Yulw==}
+
   mime-db@1.52.0:
     resolution: {integrity: sha512-sPU4uV7dYlvtWJxwwxHD0PuihVNiE7TyAbQ5SWxDCB9mUYvOgroQOwYQQOKPJ8CIbE+1ETVlOoK1UC2nU3gYvg==}
     engines: {node: '>= 0.6'}
@@ -492,6 +498,9 @@ packages:
     resolution: {integrity: sha512-z+aeEsOeEa3mEbS1Tjl6sAZ8NE3+AalQz1RJGj81M+fizusbdDMoEJwdJNHfaB40Scr4qNu+welOfes7maKonA==}
     engines: {node: '>=18.0.0', npm: '>=8.0.0'}
     hasBin: true
+
+  signature_pad@3.0.0-beta.4:
+    resolution: {integrity: sha512-cOf2NhVuTiuNqe2X/ycEmizvCDXk0DoemhsEpnkcGnA4kS5iJYTCqZ9As7tFBbsch45Q1EdX61833+6sjJ8rrw==}
 
   source-map-js@1.2.1:
     resolution: {integrity: sha512-UXWMKhLOwVKb728IUtQPXxfYU+usdybtUrK/8uGE8CQMvrhOpwvzDBwj0QhSL7MQc7vIsISBG8VQ8+IDQxpfQA==}
@@ -557,6 +566,12 @@ packages:
     resolution: {integrity: sha512-aDaq4rPBrDavh7NDLgAP8e0G8UNElh6vO3itGWjhf1y9KaGRWtFw21cUkSRHGgj0V5FlCG4EaRb1xdE/C9J+eg==}
     peerDependencies:
       vue: 2.x
+
+  vue-signature-pad@3.0.2:
+    resolution: {integrity: sha512-o25o+lROfCmzASS2+fU8ZV801kV+D4/02zkZ+ez3NKeiUmbxW7kwlUf5oKQkvA+l7Ou9xGsGLsirBLch3jyX8A==}
+    engines: {node: '>=12'}
+    peerDependencies:
+      vue: ^3.2.0
 
   vue-tel-input@9.3.0:
     resolution: {integrity: sha512-8PgAFxO5npztMruL1O0NZxPDJScfc9Qx2mDERErRKS7XQ1l/MSk8rfi0XgPbNdOBiocdweDnikNdo3xSJrQodA==}
@@ -908,6 +923,8 @@ snapshots:
     dependencies:
       '@jridgewell/sourcemap-codec': 1.5.0
 
+  merge-images@1.2.0: {}
+
   mime-db@1.52.0: {}
 
   mime-types@2.1.35:
@@ -959,6 +976,8 @@ snapshots:
       '@rollup/rollup-win32-x64-msvc': 4.32.1
       fsevents: 2.3.3
 
+  signature_pad@3.0.0-beta.4: {}
+
   source-map-js@1.2.1: {}
 
   typescript@5.6.3: {}
@@ -983,6 +1002,12 @@ snapshots:
 
   vue-select@3.20.3(vue@3.5.13(typescript@5.6.3)):
     dependencies:
+      vue: 3.5.13(typescript@5.6.3)
+
+  vue-signature-pad@3.0.2(vue@3.5.13(typescript@5.6.3)):
+    dependencies:
+      merge-images: 1.2.0
+      signature_pad: 3.0.0-beta.4
       vue: 3.5.13(typescript@5.6.3)
 
   vue-tel-input@9.3.0(libphonenumber-js@1.11.19)(vue@3.5.13(typescript@5.6.3)):

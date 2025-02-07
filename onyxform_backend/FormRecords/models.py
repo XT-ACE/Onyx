@@ -35,6 +35,8 @@ class CustomUser(AbstractUser):
     city_residence = models.CharField(max_length=255, blank=True, null=True) 
     state_residence = models.CharField(max_length=255, blank=True, null=True)
     same_address = models.BooleanField(default=False)
+    marketing_consent = models.BooleanField(default=False)
+    privacy_consent = models.BooleanField(default=False)
     permanent_street_address = models.CharField(max_length=255, blank=True, null=True)
     permanent_city = models.CharField(max_length=100, blank=True, null=True)
     permanent_state = models.CharField(max_length=100, blank=True, null=True)
@@ -43,9 +45,10 @@ class CustomUser(AbstractUser):
     nationality = models.CharField(max_length=255, blank=True, null=True) 
     valid_until = models.CharField(max_length=255, blank=True, null=True) 
 
-    # New Image Field for ID Front and Back
+    # New Image Fields for ID Front, ID Back, and Signature
     id_front = models.ImageField(upload_to="user_ids/", blank=True, null=True)
     id_back = models.ImageField(upload_to="user_ids/", blank=True, null=True)
+    signature = models.ImageField(upload_to="signatures/", blank=True, null=True)  # ✅ Signature field added
 
     # Fix related_name conflict with the default User model
     groups = models.ManyToManyField(

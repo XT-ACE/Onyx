@@ -70,25 +70,33 @@
           </select>
           <input v-model="formData.last_name" placeholder="Enter your last name" required />
           <input v-model="formData.first_name" placeholder="Enter your first name" required />
-          <input 
-       type="date" 
-       v-model="formData.date_of_birth" 
-       required 
-       />
+           <!-- Date of Birth Input -->
+    <input 
+      type="date" 
+      v-model="formData.date_of_birth" 
+      @input="calculateAge"
+      required 
+    />
     
-    <span v-if="isUnder21" class="error-message">
-      You must be 21 or older
-    </span>
           <input v-model="formData.place_of_birth" placeholder="Place of Birth" required /><br>
           <select v-model="formData.gender">
             <option value="" disabled>Gender</option>
             <option value="Male">Male</option>
             <option value="Female">Female</option>
           </select>
-          <input v-model="formData.age" type="number" placeholder="Age" required />
-          <span v-if="formData.age && formData.age < 21" class="error-message">
-            You must be 21 or older
-          </span>
+            <!-- Age Input (Auto-Computed) -->
+    <input 
+      v-model="formData.age" 
+      type="number" 
+      placeholder="Age" 
+      required 
+      readonly
+    />
+
+    <!-- Age Restriction Warning -->
+    <span v-if="formData.age && formData.age < 21" class="error-message">
+      You must be 21 or older
+    </span>
           <div class="dropdown" ref="dropdown">
     <input
       type="text"
@@ -209,6 +217,20 @@
         <!-- Step 5: Review & Confirm -->
         <div v-if="currentStep === 5">
           <h2>Step 5: Review & Confirm</h2>
+          <h3>Consent and Acknowledgment</h3>
+
+    <!-- Checkbox for Marketing Consent -->
+    <label>
+      <input type="checkbox" v-model="formData.marketing_consent" />
+      I agree to receive promotional offers, advertisements, and marketing communications from CF-ONYX CASINO through email, social media, and/or SMS.
+    </label>
+
+    <!-- Checkbox for Data Privacy Agreement -->
+    <label>
+      <input type="checkbox" v-model="formData.privacy_consent" required />
+      I have read and understood this form, including the Privacy Notice, and consent to the processing of my personal data. I acknowledge that I am fully aware of my rights under the Data Privacy Act of 2012 and understand that my consent does not preclude the existence of other lawful grounds for processing my personal data.
+    </label>
+
           <div class="review-section">
             <p><strong>Name:</strong> {{ formData.title }} {{ formData.first_name }} {{ formData.last_name }}</p>
             <p><strong>Age:</strong> {{ formData.age }}</p>
@@ -222,6 +244,13 @@
             <p><strong>Role:</strong> {{ formData.role }}</p>
             <p><strong>Income:</strong> {{ formData.income }}</p>
           </div>
+     
+    <!-- E-Signature Input -->
+    <div class="signature-container">
+      <p>E-Signature (Draw below)</p>
+      <VueSignaturePad ref="signaturePad" class="signature-pad" />
+      <button type="button" @click="clearSignature">Clear</button>
+    </div>
           <button @click="prevStep">Back</button>
           <button type="submit">Submit</button>
         </div>
@@ -236,10 +265,12 @@ import axios from "axios";
 import { ref } from "vue";
   import { VueTelInput } from "vue-tel-input";
   import "vue-tel-input/vue-tel-input.css";
+  import { VueSignaturePad } from "vue-signature-pad";
   
 export default {
   components: {
-    VueTelInput
+    VueTelInput,
+    VueSignaturePad,
   },
   data() {
     return {
@@ -275,6 +306,9 @@ export default {
         agreeToPrivacy: false,
         isOver21: false,
         nationality: "",
+        signature: "",
+        marketing_consent: false, // Optional checkbox
+        privacy_consent: false,   // Required checkbox
       },
       errorMessage: '',
       minDate: new Date().toISOString().split('T')[0], // Get today's date in YYYY-MM-DD format
@@ -486,7 +520,9 @@ filteredNationalities: [],
       this.isOpen = !this.isOpen;
 
     },
-
+    clearSignature() {
+      this.$refs.signaturePad.clearSignature();
+    },
     selectNationality(name) {
       this.selectedNationality = name;
       this.formData.nationality = name;  // Set selected nationality to form data
@@ -584,24 +620,56 @@ filteredNationalities: [],
 
     },
     async submitForm() {
-      try {
-        // Make the POST request using axios
-        await axios.post("http://192.168.1.11:8000/api/form-records/", this.formData, {
-          headers: {
-            'Content-Type': 'multipart/form-data',  // Ensure Content-Type is set for file uploads
-          },
-        });
+  try {
+    // Convert the signature to a Base64 image
+    const signatureData = this.$refs.signaturePad.saveSignature();
+    const base64Image = signatureData.data; // Extract Base64 string
 
-        alert("Form submitted successfully!");  // Show success message
-        this.resetForm();  // Reset the form after submission
+    // Convert Base64 to a Blob (image file)
+    const blob = this.dataURLtoBlob(base64Image);
+    
+    // Create FormData object
+    const formData = new FormData();
+    formData.append("privacy_consent", this.formData.privacy_consent);
+    formData.append("signature", blob, "signature.png");
 
-        // Reload the page after submitting the form
-        window.location.reload();
-      } catch (error) {
-        console.error("Error submitting form:", error);  // Log the error
-        alert("An error occurred while submitting.");  // Show error message
+    // Append other form fields dynamically
+    for (const key in this.formData) {
+      if (key !== "signature") {
+        formData.append(key, this.formData[key]);
       }
-    },
+    }
+
+    // Make the POST request using axios
+    await axios.post("http://192.168.1.11:8000/api/form-records/", formData, {
+      headers: {
+        "Content-Type": "multipart/form-data", // Ensure Content-Type is set for file uploads
+      },
+    });
+
+    alert("Form submitted successfully!"); // Show success message
+    this.resetForm(); // Reset the form after submission
+
+    // Reload the page after submitting the form
+    window.location.reload();
+  } catch (error) {
+    console.error("Error submitting form:", error); // Log the error
+    alert("An error occurred while submitting."); // Show error message
+  }
+},
+
+dataURLtoBlob(dataURL) {
+  // Convert Base64 string to a Blob
+  const byteString = atob(dataURL.split(",")[1]);
+  const mimeString = dataURL.split(",")[0].split(":")[1].split(";")[0];
+  const ab = new ArrayBuffer(byteString.length);
+  const ia = new Uint8Array(ab);
+  for (let i = 0; i < byteString.length; i++) {
+    ia[i] = byteString.charCodeAt(i);
+  }
+  return new Blob([ab], { type: mimeString });
+},
+
     resetForm() {
       this.formData = new FormData();  // Reset FormData
       // Reset other form fields if needed
@@ -610,6 +678,25 @@ filteredNationalities: [],
       this.filteredNationalities = this.nationalities.filter((nationality) =>
       nationality.name.toLowerCase().includes(this.formData.nationality.toLowerCase())
       );
+    },
+    calculateAge() {
+      if (!this.formData.date_of_birth) {
+        this.formData.age = '';
+        return;
+      }
+      
+      const birthDate = new Date(this.formData.date_of_birth);
+      const today = new Date();
+      let age = today.getFullYear() - birthDate.getFullYear();
+      const monthDifference = today.getMonth() - birthDate.getMonth();
+      const dayDifference = today.getDate() - birthDate.getDate();
+      
+      // Adjust age if birthday hasn't happened yet this year
+      if (monthDifference < 0 || (monthDifference === 0 && dayDifference < 0)) {
+        age--;
+      }
+      
+      this.formData.age = age;
     }
   },
   computed: {
@@ -618,18 +705,6 @@ filteredNationalities: [],
         item.name.toLowerCase().includes(this.formData.nationality.toLowerCase())
       );
     },
-    isUnder21() {
-      if (!this.formData.date_of_birth) return false;
-      
-      const birthDate = new Date(this.formData.date_of_birth);
-      const today = new Date();
-      const age = today.getFullYear() - birthDate.getFullYear();
-      const monthDifference = today.getMonth() - birthDate.getMonth();
-      const dayDifference = today.getDate() - birthDate.getDate();
-      
-      // Check if the person is under 21 years old
-      return age < 21 || (age === 21 && (monthDifference < 0 || (monthDifference === 0 && dayDifference < 0)));
-    }
   },
   mounted() {
     this.filteredNationalities = this.nationalities; // Load all initially
