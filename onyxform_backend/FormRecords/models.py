@@ -19,6 +19,9 @@ class CustomUser(AbstractUser):
     last_name = models.CharField(max_length=100, blank=True, null=True)
     first_name = models.CharField(max_length=100, blank=True, null=True)
     age = models.IntegerField(null=True, blank=True)
+    date_of_birth = models.CharField(max_length=255, blank=True, null=True)
+    place_of_birth = models.CharField(max_length=255, blank=True, null=True)
+    gender = models.CharField(max_length=100, blank=True, null=True)    
     citizenship = models.CharField(max_length=100, blank=True, null=True)
     mobile_number = models.CharField(max_length=20, blank=True, null=True)
     valid_id = models.CharField(max_length=100, blank=True, null=True)
@@ -27,16 +30,22 @@ class CustomUser(AbstractUser):
     role = models.CharField(max_length=100, blank=True, null=True)
     income = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
 
-    # New fields
-    street_address = models.CharField(max_length=255, blank=True, null=True)  # New field
+    # Address fields
+    street_address = models.CharField(max_length=255, blank=True, null=True)
     city_residence = models.CharField(max_length=255, blank=True, null=True) 
     state_residence = models.CharField(max_length=255, blank=True, null=True)
-    same_address = models.BooleanField(default=False)  # Checkbox to determine if addresses are the same
+    same_address = models.BooleanField(default=False)
     permanent_street_address = models.CharField(max_length=255, blank=True, null=True)
     permanent_city = models.CharField(max_length=100, blank=True, null=True)
     permanent_state = models.CharField(max_length=100, blank=True, null=True)
-    nationality = models.CharField(max_length=255, blank=True, null=True) 
 
+    # Nationality and Validity Fields
+    nationality = models.CharField(max_length=255, blank=True, null=True) 
+    valid_until = models.CharField(max_length=255, blank=True, null=True) 
+
+    # New Image Field for ID Front and Back
+    id_front = models.ImageField(upload_to="user_ids/", blank=True, null=True)
+    id_back = models.ImageField(upload_to="user_ids/", blank=True, null=True)
 
     # Fix related_name conflict with the default User model
     groups = models.ManyToManyField(

@@ -12,9 +12,10 @@ class CustomUserAdmin(UserAdmin):
         (None, {'fields': ('email_address', 'password')}),
         ('Personal info', {
             'fields': (
-                'first_name', 'last_name', 'title', 'age', 'nationality', 'mobile_number',
+                'first_name', 'last_name', 'title', 'age', 'date_of_birth', 'place_of_birth', 'gender', 'nationality', 'mobile_number',
                 'same_address', 'street_address', 'city_residence', 'state_residence',
-                'permanent_street_address', 'permanent_city', 'permanent_state', 'valid_id', 'id_no',
+                'permanent_street_address', 'permanent_city', 'permanent_state', 'valid_id', 'id_no','valid_until',
+                'id_front', 'id_back',
                 'work_industry', 'role', 'income',
             ),
         }),

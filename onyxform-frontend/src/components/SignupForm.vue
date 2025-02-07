@@ -3,17 +3,20 @@
     <div class="form-container">
       <div class="onyx-header">
         <h1>CF - ONYX MEMBERSHIP CARD APPLICATION FORM</h1>
-        <p>
-          The following personalities are NOT ALLOWED to register and/or play in this casino:
-        </p>
-        <ul>
-          <li>♠️ <strong>Government Official</strong> or employee connected directly with the operation of the <strong>Government</strong> or any of its agencies.</li>
-          <li>♠️ Member of the <strong>Armed Forces of the Philippines</strong>, including the Army, Navy, Air Force, or the Philippine National Police.</li>
-          <li>♠️ Persons <strong>under 21</strong> years of age.</li>
-          <li>♠️ Persons included in the PAGCOR's National Database of Restricted Persons (<strong>NDRP</strong>).</li>
-          <li>♠️ Gaming Employment License (<strong>GEL</strong>) holder.</li>
-          <li>Funds or credits in the account of player who is found ineligible to play shall mean forfeiture of said funds/credits in favor of the Government.</li>
-        </ul>
+  <p>
+    The following personalities are NOT ALLOWED to register and/or play in this casino:
+  </p>
+  
+  <button @click="toggleList">{{ listVisible ? 'Hide List' : 'Show List' }}</button>
+  
+  <ul v-if="listVisible">
+    <li>♠️ <strong>Government Official</strong> or employee connected directly with the operation of the <strong>Government</strong> or any of its agencies.</li>
+    <li>♠️ Member of the <strong>Armed Forces of the Philippines</strong>, including the Army, Navy, Air Force, or the Philippine National Police.</li>
+    <li>♠️ Persons <strong>under 21</strong> years of age.</li>
+    <li>♠️ Persons included in the PAGCOR's National Database of Restricted Persons (<strong>NDRP</strong>).</li>
+    <li>♠️ Gaming Employment License (<strong>GEL</strong>) holder.</li>
+    <li>Funds or credits in the account of player who is found ineligible to play shall mean forfeiture of said funds/credits in favor of the Government.</li>
+  </ul>
         
       </div>
 
@@ -61,12 +64,19 @@
           <h2>Step 2: Personal Information</h2>
           <select v-model="formData.title">
             <option value="" disabled>Title</option>
-            <option value="Mr">Mr</option>
-            <option value="Mrs">Mrs</option>
-            <option value="Ms">Ms</option>
+            <option value="Mr.">Mr.</option>
+            <option value="Mrs.">Mrs.</option>
+            <option value="Ms.">Ms.</option>
           </select>
           <input v-model="formData.last_name" placeholder="Enter your last name" required />
           <input v-model="formData.first_name" placeholder="Enter your first name" required />
+          <input type="date" v-model="formData.date_of_birth" required />
+          <input v-model="formData.place_of_birth" placeholder="Place of Birth" required /><br>
+          <select v-model="formData.gender">
+            <option value="" disabled>Gender</option>
+            <option value="Male">Male</option>
+            <option value="Female">Female</option>
+          </select>
           <input v-model="formData.age" type="number" placeholder="Age" required />
           <span v-if="formData.age && formData.age < 21" class="error-message">
             You must be 21 or older
@@ -134,7 +144,7 @@
 
 
         <!-- Step 4: ID Verification -->
-        <div v-if="currentStep === 4">
+        <div class="verification-info" v-if="currentStep === 4">
           <h2>Step 4: ID Verification</h2>
           <select v-model="formData.valid_id" required>
   <option value="" disabled selected>Select a Valid ID</option>
@@ -152,27 +162,40 @@
 </select>
 
           <input v-model="formData.id_no" placeholder="Valid ID No" required />
-          <input v-model="formData.id_no" placeholder="Valid until" required />
-          <input 
+          <input
+  v-model="formData.valid_until"
+  type="date"
+  placeholder="Valid until"
+  required
+  :min="minDate"
+/>
+<p v-if="errorMessage" style="color: red;">{{ errorMessage }}</p>
+
+<label>Upload Front Id:</label>
+<input 
   type="file" 
   accept="image/*" 
   capture="environment" 
-  @change="handleFileUpload" 
+  @change="handleFileUploadFrontID" 
   required
 />
-<input v-model="formData.latest_pic" placeholder="Capture or Upload Your Recent Photo" required />
-          <input 
+
+<label>Upload Back Id:</label>
+<input 
   type="file" 
   accept="image/*" 
   capture="environment" 
-  @change="handleFileUpload" 
+  @change="handleFileUploadBackID" 
   required
 />
+
           <input v-model="formData.work_industry" placeholder="Work Industry" required />
           <input v-model="formData.role" placeholder="Role" required />
           <input v-model="formData.income" type="number" placeholder="Income" required />
-          <button @click="prevStep">Back</button>
-          <button @click="nextStep">Next</button>
+          <div class="verification-info-btn">
+         <button @click="prevStep">Back</button>
+         <button @click="nextStep">Next</button>
+  </div>
         </div>
 
         <!-- Step 5: Review & Confirm -->
@@ -212,6 +235,7 @@ export default {
   },
   data() {
     return {
+      listVisible: false,
       currentStep: 1, // Track the current step
       showErrors: false, // Flag to show validation errors
       formData: {
@@ -219,7 +243,9 @@ export default {
         last_name: "",
         first_name: "",
         age: "",
-        citizenship: "",
+        date_of_birth: '',
+        place_of_birth: '',
+        gender: '',
         mobile_number: '',
         email_address: "",
         present_address: false,
@@ -232,7 +258,9 @@ export default {
         permanent_state: "",
         valid_id: "",
         id_no: "",
-        photo_id: "",
+        valid_until: '',
+        id_front: null,
+        id_back: null,
         work_industry: "",
         role: "",
         income: "",
@@ -240,6 +268,8 @@ export default {
         isOver21: false,
         nationality: "",
       },
+      errorMessage: '',
+      minDate: new Date().toISOString().split('T')[0], // Get today's date in YYYY-MM-DD format
       isOpen: false,
       nationality: "",
       selectedNationality: "",
@@ -437,6 +467,9 @@ filteredNationalities: [],
         this.currentStep++;
       }
     },
+    toggleList() {
+      this.listVisible = !this.listVisible; // Toggle the visibility state
+    },
     prevStep() {
       this.currentStep--;
     },
@@ -451,7 +484,18 @@ filteredNationalities: [],
       this.formData.nationality = name;  // Set selected nationality to form data
       this.isOpen = false;  // Close dropdown
     },
-
+    handleFileUploadFrontID(event) {
+      const file = event.target.files[0]; // Get the selected file
+      if (file) {
+        this.formData.id_front = file;  // Store the file in the id_front property
+      }
+    },
+    handleFileUploadBackID(event) {
+      const file = event.target.files[0]; // Get the selected file
+      if (file) {
+        this.formData.id_back = file;  // Store the file in the id_front property
+      }
+    },
     validateStep() {
   this.showErrors = true; // Enable error messages
 
@@ -533,17 +577,26 @@ filteredNationalities: [],
     },
     async submitForm() {
       try {
-        await axios.post("http://192.168.1.11:8000/api/form-records/", this.formData);
-        alert("Form submitted successfully!");
-        this.resetForm();
+        // Make the POST request using axios
+        await axios.post("http://192.168.1.11:8000/api/form-records/", this.formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data',  // Ensure Content-Type is set for file uploads
+          },
+        });
+
+        alert("Form submitted successfully!");  // Show success message
+        this.resetForm();  // Reset the form after submission
+
+        // Reload the page after submitting the form
+        window.location.reload();
       } catch (error) {
-        console.error("Error submitting form:", error);
-        alert("An error occurred while submitting.");
+        console.error("Error submitting form:", error);  // Log the error
+        alert("An error occurred while submitting.");  // Show error message
       }
     },
     resetForm() {
-      this.currentStep = 1;
-      this.showErrors = false;
+      this.formData = new FormData();  // Reset FormData
+      // Reset other form fields if needed
     },
     filterNationalities() {
       this.filteredNationalities = this.nationalities.filter((nationality) =>
@@ -578,6 +631,13 @@ filteredNationalities: [],
     },
     "formData.state_residence"(newValue) {
       if (this.formData.same_address) this.formData.permanent_state = newValue;
+    },
+    'formData.valid_until'(newDate) {
+      if (newDate < this.minDate) {
+        this.errorMessage = 'Date must be today or in the future!';
+      } else {
+        this.errorMessage = '';
+      }
     }
   }
 };
@@ -792,5 +852,27 @@ button:hover{
   gap: 1rem;
   margin-top: 1rem;
 }
+/* Verification Information styling */
+.verification-info{
+  display: flex;
+  flex-direction: column;
+  width: 60vw;
+  max-width: 900px;
+}
+.verification-info input{
+  padding: 0.5rem;
+  margin-top: 1rem;
+  max-width: 300px;
+}
 
+.verification-info select{
+  padding: 0.5rem;
+  max-width: 320px;
+}
+.verification-info-btn {
+  display: flex;
+  flex-direction: row;
+  gap: 1rem;
+  margin-top: 1rem;
+}
 </style>
