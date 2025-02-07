@@ -70,7 +70,15 @@
           </select>
           <input v-model="formData.last_name" placeholder="Enter your last name" required />
           <input v-model="formData.first_name" placeholder="Enter your first name" required />
-          <input type="date" v-model="formData.date_of_birth" required />
+          <input 
+       type="date" 
+       v-model="formData.date_of_birth" 
+       required 
+       />
+    
+    <span v-if="isUnder21" class="error-message">
+      You must be 21 or older
+    </span>
           <input v-model="formData.place_of_birth" placeholder="Place of Birth" required /><br>
           <select v-model="formData.gender">
             <option value="" disabled>Gender</option>
@@ -610,6 +618,18 @@ filteredNationalities: [],
         item.name.toLowerCase().includes(this.formData.nationality.toLowerCase())
       );
     },
+    isUnder21() {
+      if (!this.formData.date_of_birth) return false;
+      
+      const birthDate = new Date(this.formData.date_of_birth);
+      const today = new Date();
+      const age = today.getFullYear() - birthDate.getFullYear();
+      const monthDifference = today.getMonth() - birthDate.getMonth();
+      const dayDifference = today.getDate() - birthDate.getDate();
+      
+      // Check if the person is under 21 years old
+      return age < 21 || (age === 21 && (monthDifference < 0 || (monthDifference === 0 && dayDifference < 0)));
+    }
   },
   mounted() {
     this.filteredNationalities = this.nationalities; // Load all initially
