@@ -1,6 +1,10 @@
 <template>
   <div class="onyx-form">
     <div class="form-container">
+      <div class="onyx-banner">
+      <img src="/images/onyxheader.jpg" class="banner">
+      <img src="/images/Onyx-Casino-Logo.jpeg" class="logo">
+      </div>
       <div class="onyx-header">
         <h1>CF - ONYX MEMBERSHIP CARD APPLICATION FORM</h1>
   <p>
@@ -57,34 +61,42 @@
             </div>
           </div>
           <button @click="nextStep">Next</button>
+          <p>Powered by: ACE Systems</p>
         </div>
 
         <!-- Step 2: Personal Information -->
         <div class="personal-info" v-if="currentStep === 2">
           <h2>Step 2: Personal Information</h2>
+          <label>Title:</label>
           <select v-model="formData.title">
             <option value="" disabled>Title</option>
             <option value="Mr.">Mr.</option>
             <option value="Mrs.">Mrs.</option>
             <option value="Ms.">Ms.</option>
           </select>
+          <label>Last Name:</label>
           <input v-model="formData.last_name" placeholder="Enter your last name" required />
+          <label>First Name:</label>
           <input v-model="formData.first_name" placeholder="Enter your first name" required />
            <!-- Date of Birth Input -->
+           <label>Birth Date:</label>
     <input 
       type="date" 
       v-model="formData.date_of_birth" 
       @input="calculateAge"
       required 
+      class="date"
     />
-    
-          <input v-model="formData.place_of_birth" placeholder="Place of Birth" required /><br>
+    <label>Place of Birth:</label>
+          <input v-model="formData.place_of_birth" placeholder="Place of Birth" required />
+          <label>Gender:</label>
           <select v-model="formData.gender">
             <option value="" disabled>Gender</option>
             <option value="Male">Male</option>
             <option value="Female">Female</option>
           </select>
             <!-- Age Input (Auto-Computed) -->
+            <label>Age:</label>
     <input 
       v-model="formData.age" 
       type="number" 
@@ -98,6 +110,8 @@
       You must be 21 or older
     </span>
           <div class="dropdown" ref="dropdown">
+
+            <label>Nationality:</label>
     <input
       type="text"
       v-model="formData.nationality"
@@ -123,6 +137,7 @@
         <!-- Step 3: Contact Information -->
         <div class="contact-info" v-if="currentStep === 3">
     <h2>Step 3: Contact Information</h2>
+<label>Phone Number:</label>
     <vue-tel-input
       v-model="formData.mobile_number"
       :preferred-countries="['us', 'gb', 'ph']"
@@ -131,10 +146,15 @@
       autocomplete="off"
       ref="phoneInput"
       mode="international"
+      class="phone-number"
     />
+    <label>Email:</label>
     <input v-model="formData.email_address" type="email" placeholder="Email Address" required />
+    <label>Street Address:</label>
     <input v-model="formData.street_address" placeholder="Street Address" required />
+    <label>City:</label>
     <input v-model="formData.city_residence" placeholder="City" required />
+    <label>Region | Province | State:</label>
     <input v-model="formData.state_residence" placeholder="Enter your region/province/state" required />
 
     <div>
@@ -145,12 +165,15 @@
     </div>
 
     <!-- Always show the permanent address fields -->
-    <div class="contact-info">
+    
       <h3>Permanent Address</h3>
+      <label>Street Address:</label>
       <input v-model="formData.permanent_street_address" :readonly="formData.same_address" placeholder="Street Address" required />
+      <label>City:</label>
       <input v-model="formData.permanent_city" :readonly="formData.same_address" placeholder="City" required />
+      <label>Region | Province | State:</label>
       <input v-model="formData.permanent_state" :readonly="formData.same_address" placeholder="Region/Province/State" required />
-    </div>
+    
   
   <div class="contact-info-btn">
     <button @click="prevStep">Back</button>
@@ -162,6 +185,8 @@
         <!-- Step 4: ID Verification -->
         <div class="verification-info" v-if="currentStep === 4">
           <h2>Step 4: ID Verification</h2>
+
+          <label>Valid ID:</label>
           <select v-model="formData.valid_id" required>
   <option value="" disabled selected>Select a Valid ID</option>
   <option value="Passport">Passport</option>
@@ -176,14 +201,16 @@
   <option value="OWWA ID">OWWA ID</option>
   <option value="OFW Card">OFW Card</option>
 </select>
-
+         <label>ID No:</label>
           <input v-model="formData.id_no" placeholder="Valid ID No" required />
+          <label>Valid Until:</label>
           <input
   v-model="formData.valid_until"
   type="date"
   placeholder="Valid until"
   required
   :min="minDate"
+  class="date"
 />
 <p v-if="errorMessage" style="color: red;">{{ errorMessage }}</p>
 
@@ -191,7 +218,6 @@
 <input 
   type="file" 
   accept="image/*" 
-  capture="environment" 
   @change="handleFileUploadFrontID" 
   required
 />
@@ -200,13 +226,14 @@
 <input 
   type="file" 
   accept="image/*" 
-  capture="environment" 
   @change="handleFileUploadBackID" 
   required
 />
-
+<label>Work Industry:</label>
           <input v-model="formData.work_industry" placeholder="Work Industry" required />
+          <label>Role:</label>
           <input v-model="formData.role" placeholder="Role" required />
+          <label>Income:</label>
           <input v-model="formData.income" type="number" placeholder="Income" required />
           <div class="verification-info-btn">
          <button @click="prevStep">Back</button>
@@ -219,27 +246,33 @@
           <h2>Step 5: Review & Confirm</h2>
           <h3>Consent and Acknowledgment</h3>
 
+
+          <div class="consent-acknowledgement">
     <!-- Checkbox for Marketing Consent -->
     <label>
       <input type="checkbox" v-model="formData.marketing_consent" />
       I agree to receive promotional offers, advertisements, and marketing communications from CF-ONYX CASINO through email, social media, and/or SMS.
     </label>
-
+<br><br>
     <!-- Checkbox for Data Privacy Agreement -->
     <label>
       <input type="checkbox" v-model="formData.privacy_consent" required />
       I have read and understood this form, including the Privacy Notice, and consent to the processing of my personal data. I acknowledge that I am fully aware of my rights under the Data Privacy Act of 2012 and understand that my consent does not preclude the existence of other lawful grounds for processing my personal data.
     </label>
-
+  </div>
           <div class="review-section">
             <p><strong>Name:</strong> {{ formData.title }} {{ formData.first_name }} {{ formData.last_name }}</p>
             <p><strong>Age:</strong> {{ formData.age }}</p>
-            <p><strong>Citizenship:</strong> {{ formData.citizenship }}</p>
+            <p><strong>Gender:</strong> {{ formData.gender }}</p>
+            <p><strong>Birth Date:</strong> {{ formData.date_of_birth }}</p>
+            <p><strong>Address:</strong> {{ formData.place_of_birth }}</p>
             <p><strong>Mobile:</strong> {{ formData.mobile_number }}</p>
             <p><strong>Email:</strong> {{ formData.email_address }}</p>
             <p><strong>Address:</strong> {{ formData.street_address }}, {{ formData.city_residence }}, {{ formData.state_residence }}</p>
             <p><strong>Valid ID:</strong> {{ formData.valid_id }}</p>
             <p><strong>ID No:</strong> {{ formData.id_no }}</p>
+            <p><strong>Front ID:</strong><img v-if="frontIDPreview" :src="frontIDPreview" alt="Front ID Preview" style="max-width: 200px; display: block; margin-top: 10px;" /></p>
+            <p><strong>Back ID:</strong><img v-if="backIDPreview" :src="backIDPreview" alt="Back ID Preview" style="max-width: 200px; display: block; margin-top: 10px;" /></p>
             <p><strong>Industry:</strong> {{ formData.work_industry }}</p>
             <p><strong>Role:</strong> {{ formData.role }}</p>
             <p><strong>Income:</strong> {{ formData.income }}</p>
@@ -248,11 +281,13 @@
     <!-- E-Signature Input -->
     <div class="signature-container">
       <p>E-Signature (Draw below)</p>
-      <VueSignaturePad ref="signaturePad" class="signature-pad" />
+      <VueSignaturePad ref="signaturePad" class="signature-pad" /><br>
       <button type="button" @click="clearSignature">Clear</button>
     </div>
+    <div class="submit">
           <button @click="prevStep">Back</button>
           <button type="submit">Submit</button>
+        </div>
         </div>
 
       </form>
@@ -309,7 +344,10 @@ export default {
         signature: "",
         marketing_consent: false, // Optional checkbox
         privacy_consent: false,   // Required checkbox
+        id: "",
       },
+      frontIDPreview: null,
+      backIDPreview: null,
       errorMessage: '',
       minDate: new Date().toISOString().split('T')[0], // Get today's date in YYYY-MM-DD format
       isOpen: false,
@@ -531,13 +569,15 @@ filteredNationalities: [],
     handleFileUploadFrontID(event) {
       const file = event.target.files[0]; // Get the selected file
       if (file) {
-        this.formData.id_front = file;  // Store the file in the id_front property
+        this.formData.id_front = file;  // Store the file in the formData object
+        this.frontIDPreview = URL.createObjectURL(file); // Generate preview
       }
     },
     handleFileUploadBackID(event) {
       const file = event.target.files[0]; // Get the selected file
       if (file) {
-        this.formData.id_back = file;  // Store the file in the id_front property
+        this.formData.id_back = file;  // Store the file in the formData object
+        this.backIDPreview = URL.createObjectURL(file); // Generate preview
       }
     },
     validateStep() {
@@ -619,56 +659,61 @@ filteredNationalities: [],
   return true; // Allow moving to the next step if all validations pass
 
     },
+
     async submitForm() {
-  try {
-    // Convert the signature to a Base64 image
-    const signatureData = this.$refs.signaturePad.saveSignature();
-    const base64Image = signatureData.data; // Extract Base64 string
+      try {
+        // Convert the signature to a Base64 image
+        const signatureData = this.$refs.signaturePad.saveSignature();
+        const base64Image = signatureData.data; // Extract Base64 string
 
-    // Convert Base64 to a Blob (image file)
-    const blob = this.dataURLtoBlob(base64Image);
-    
-    // Create FormData object
-    const formData = new FormData();
-    formData.append("privacy_consent", this.formData.privacy_consent);
-    formData.append("signature", blob, "signature.png");
+        // Convert Base64 to a Blob (image file)
+        const blob = this.dataURLtoBlob(base64Image);
 
-    // Append other form fields dynamically
-    for (const key in this.formData) {
-      if (key !== "signature") {
-        formData.append(key, this.formData[key]);
+        // Create FormData object
+        const formData = new FormData();
+        formData.append("privacy_consent", this.formData.privacy_consent);
+        formData.append("signature", blob, "signature.png");
+
+        // Append other form fields dynamically
+        for (const key in this.formData) {
+          if (key !== "signature") {
+            formData.append(key, this.formData[key]);
+          }
+        }
+
+        // Make the POST request using axios
+        const response = await axios.post("http://192.168.1.11:8000/api/form-records/", formData, {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        });
+
+        // Get the ID from the response
+        const id = response.data.id;
+
+        alert("Form submitted successfully!"); // Show success message
+
+        // Redirect user to QR Code page with the received ID
+        this.$router.push(`/qrcode/${id}`);
+
+      } catch (error) {
+        console.error("Error submitting form:", error); // Log the error
+        alert("An error occurred while submitting."); // Show error message
       }
-    }
+    },
 
-    // Make the POST request using axios
-    await axios.post("http://192.168.1.11:8000/api/form-records/", formData, {
-      headers: {
-        "Content-Type": "multipart/form-data", // Ensure Content-Type is set for file uploads
-      },
-    });
-
-    alert("Form submitted successfully!"); // Show success message
-    this.resetForm(); // Reset the form after submission
-
-    // Reload the page after submitting the form
-    window.location.reload();
-  } catch (error) {
-    console.error("Error submitting form:", error); // Log the error
-    alert("An error occurred while submitting."); // Show error message
-  }
-},
-
-dataURLtoBlob(dataURL) {
-  // Convert Base64 string to a Blob
-  const byteString = atob(dataURL.split(",")[1]);
-  const mimeString = dataURL.split(",")[0].split(":")[1].split(";")[0];
-  const ab = new ArrayBuffer(byteString.length);
-  const ia = new Uint8Array(ab);
-  for (let i = 0; i < byteString.length; i++) {
-    ia[i] = byteString.charCodeAt(i);
-  }
-  return new Blob([ab], { type: mimeString });
-},
+    // Move this function inside 'methods'
+    dataURLtoBlob(dataURL) {
+      // Convert Base64 string to a Blob
+      const byteString = atob(dataURL.split(",")[1]);
+      const mimeString = dataURL.split(",")[0].split(":")[1].split(";")[0];
+      const ab = new ArrayBuffer(byteString.length);
+      const ia = new Uint8Array(ab);
+      for (let i = 0; i < byteString.length; i++) {
+        ia[i] = byteString.charCodeAt(i);
+      }
+      return new Blob([ab], { type: mimeString });
+    },
 
     resetForm() {
       this.formData = new FormData();  // Reset FormData
@@ -740,6 +785,26 @@ dataURLtoBlob(dataURL) {
 
 
 <style scoped>
+.onyx-banner{
+  position: relative;
+  margin-bottom: 3rem;
+  max-width: 1000px;
+  
+}
+.banner{
+  max-width: 1000px;
+ position: relative;
+  width: 70vw;
+}
+.logo{
+  width: 10vw;
+  max-width: 100px;
+  border-radius: 100%;
+  position: absolute; /* or relative */
+  top: 12rem; /* Adjust this value */
+  left: 3rem;
+
+}
 .onyx-header h1{
   font-weight: bold;
 }
@@ -829,7 +894,7 @@ button:hover{
 }
 
 .form-consents span{
-  color: rgba(255, 101, 19, 0.897);
+  color: rgb(255, 0, 0);
 }
 .form-row{
   display: flex;
@@ -884,13 +949,15 @@ button:hover{
   width: 60vw;
   max-width: 900px;
 }
+.personal-info label{
+  margin-top: 0.7rem;
+}
 .personal-info select{
   padding: 0.5rem;
   max-width: 320px;
 }
 .personal-info input{
   padding: 0.5rem;
-  margin-top: 1rem;
   max-width: 300px;
 }
 .personal-info-btn {
@@ -902,7 +969,9 @@ button:hover{
 .dropdown {
   position: relative;
   width: 200px;
+  margin-top: 0.7rem;
 }
+
 .dropdown input {
   width: 30vw;
   max-width: 300px;
@@ -936,9 +1005,11 @@ button:hover{
   width: 60vw;
   max-width: 900px;
 }
+.contact-info label{
+  margin-top: 0.7rem;
+}
 .contact-info input{
   padding: 0.5rem;
-  margin-top: 1rem;
   max-width: 300px;
 }
 .contact-info-btn {
@@ -956,10 +1027,11 @@ button:hover{
 }
 .verification-info input{
   padding: 0.5rem;
-  margin-top: 1rem;
   max-width: 300px;
 }
-
+.verification-info label{
+  margin-top: 0.7rem;
+}
 .verification-info select{
   padding: 0.5rem;
   max-width: 320px;
@@ -969,5 +1041,99 @@ button:hover{
   flex-direction: row;
   gap: 1rem;
   margin-top: 1rem;
+}
+
+.signature-container{
+  height: 150px;
+}
+.signature-pad{
+  border: 1px solid grey;
+}
+
+.submit{
+  margin-top: 6rem;
+}
+@media (max-width: 768px) {
+  .personal-info{
+    margin-left: -4.5rem;
+  }
+  .personal-info select{
+  height: 45px;
+  max-width: 100vw;
+  width: 75vw;
+}
+.personal-info input{
+  padding: 0.5rem;
+  max-width: 100vw;
+  width: 70vw;
+}
+
+.personal-info .date{
+  height: 40px;
+}
+.personal-info-btn {
+  display: flex;
+  flex-direction: row;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+.dropdown {
+  position: relative;
+  width: 75vw;
+
+}
+
+.dropdown-menu {
+  position: absolute;
+  width: 100%;
+  max-height: 200px;
+  overflow-y: auto;
+  background: white;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.dropdown-menu li {
+  padding: 8px;
+  cursor: pointer;
+}
+.dropdown-menu li:hover {
+  background: #f0f0f0;
+}
+.contact-info{
+    margin-left: -4.5rem;
+  }
+  .contact-info select{
+  height: 45px;
+  max-width: 100vw;
+  width: 75vw;
+}
+.contact-info input{
+  padding: 0.5rem;
+  max-width: 100vw;
+  width: 70vw;
+}
+.phone-number{
+  max-width: 100vw;
+  width: 73.4vw;
+}
+.verification-info{
+margin-left: -4.5rem;
+}
+.verification-info select{
+  height: 45px;
+  max-width: 100vw;
+  width: 75vw;
+}
+.verification-info input{
+  padding: 0.5rem;
+  max-width: 100vw;
+  width: 70vw;
+}
+.verification-info  .date{
+  height: 40px;
+}
 }
 </style>

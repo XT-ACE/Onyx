@@ -1,7 +1,7 @@
 from django.contrib.auth.models import AbstractUser, Group, Permission
 from django.db import models
 
-class CustomUser(AbstractUser):
+class CustomMember(AbstractUser):
     # Set 'email_address' as the USERNAME_FIELD
     USERNAME_FIELD = 'email_address'
     
@@ -49,16 +49,19 @@ class CustomUser(AbstractUser):
     id_front = models.ImageField(upload_to="user_ids/", blank=True, null=True)
     id_back = models.ImageField(upload_to="user_ids/", blank=True, null=True)
     signature = models.ImageField(upload_to="signatures/", blank=True, null=True)  # ✅ Signature field added
-
+     
+    class Meta:
+        verbose_name = "Member"  # Rename the singular name
+        verbose_name_plural = "Members"  # Rename the plural name
     # Fix related_name conflict with the default User model
     groups = models.ManyToManyField(
         Group,
-        related_name="customuser_set",  
+        related_name="custommeber_set",  
         blank=True
     )
     user_permissions = models.ManyToManyField(
         Permission,
-        related_name="customuser_set",  
+        related_name="custommember_set",  
         blank=True
     )
 

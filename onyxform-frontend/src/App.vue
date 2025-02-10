@@ -1,8 +1,5 @@
-<script setup>
-import SignupForm from './components/SignupForm.vue';
 
-</script>
 
 <template>
-  <SignupForm />
+  <router-view /> <!-- This renders the matched component -->
 </template>

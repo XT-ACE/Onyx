@@ -1,9 +1,9 @@
 from rest_framework import serializers
-from .models import CustomUser
+from .models import CustomMember
 
 class FormRecordsSerializer(serializers.ModelSerializer):
     class Meta:
-        model = CustomUser
+        model = CustomMember
         fields = (
             'id', 'title', 'last_name', 'first_name', 'age', 'date_of_birth', 'place_of_birth', 'gender', 'nationality', 'mobile_number', 
             'email_address', 'city_residence', 'state_residence', 'valid_id', 'valid_until', 
@@ -12,4 +12,4 @@ class FormRecordsSerializer(serializers.ModelSerializer):
         )
 
     def create(self, validated_data):
-        return CustomUser.objects.create(**validated_data)
+        return CustomMember.objects.create(**validated_data)
