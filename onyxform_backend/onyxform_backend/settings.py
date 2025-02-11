@@ -31,6 +31,7 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    'jazzmin',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -159,9 +160,16 @@ USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
-
-STATIC_URL = 'static/'
 import os
+STATIC_URL = 'static/'
+# Path where collected static files will be stored
+STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
+
+# Ensure Django finds additional static files during development
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, "FormRecords/static"),
+]
+
 
 MEDIA_URL = "/media/"
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")
@@ -173,3 +181,23 @@ DATA_UPLOAD_MAX_MEMORY_SIZE = 25485760  # 10 MB (adjust as needed)
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+JAZZMIN_SETTINGS = {
+    # title of the window (Will default to current_admin_site.site_title if absent or None)
+    "site_title": "Library Admin",
+
+    # Title on the login screen (19 chars max) (defaults to current_admin_site.site_header if absent or None)
+    "site_header": "Library",
+
+    # Title on the brand (19 chars max) (defaults to current_admin_site.site_header if absent or None)
+ 
+    # Logo to use for your site, must be present in static files, used for brand on top left
+  
+
+    # Logo to use for your site, must be present in static files, used for login form logo (defaults to site_logo)
+    "login_logo": None,
+
+    # Logo to use for login form in dark themes (defaults to login_logo)
+    "login_logo_dark": None,
+
+    # CSS classes that are applied to the logo above
+}

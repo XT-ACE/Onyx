@@ -44,6 +44,6 @@ class CustomMemberAdmin(UserAdmin):
 
 # Register the CustomUser model with the customized admin
 admin.site.register(CustomMember, CustomMemberAdmin)
-admin.site.site_header = "Onyx Casino Administration"
+admin.site.site_header = "Onyx Casino"
 admin.site.site_title = "Onyx Casino Admin Portal"
 admin.site.index_title = "Welcome to Onyx Casino Administration"

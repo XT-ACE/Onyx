@@ -3,8 +3,8 @@
     <div class="form-container">
       <div class="onyx-banner">
       <img src="/images/onyxheader.jpg" class="banner">
-      <img src="/images/Onyx-Casino-Logo.jpeg" class="logo">
       </div>
+      <div class="form-group">
       <div class="onyx-header">
         <h1>CF - ONYX MEMBERSHIP CARD APPLICATION FORM</h1>
   <p>
@@ -45,18 +45,18 @@
                 <a href="https://www.pagcor.ph/docs/data-privacy-notice.pdf" target="_blank">
                   Privacy Statement
                 </a>
-              </label>
+              </label><br>
               <span v-if="!formData.agreeToPrivacy && showErrors" class="error-message">
-                This is a required field
+                This is a required field!
               </span>
             </div>
             <div>
               <input v-model="formData.isOver21" type="checkbox" />
               <label> I agree to the <a href="https://www.pagcor.ph/regulatory/pdf/RG-Code-of-Practice-v6.pdf" target="_blank">
                   Terms and Conditions
-                </a></label>
+                </a></label><br>
               <span v-if="!formData.isOver21 && showErrors" class="error-message">
-                This is a required field
+                This is a required field!
               </span>
             </div>
           </div>
@@ -65,7 +65,7 @@
         </div>
 
         <!-- Step 2: Personal Information -->
-        <div class="personal-info" v-if="currentStep === 2">
+        <div class="input-info" v-if="currentStep === 2">
           <h2>Step 2: Personal Information</h2>
           <label>Title:</label>
           <select v-model="formData.title">
@@ -129,13 +129,13 @@
       </li>
     </ul>
   </div>
-  <div class="personal-info-btn">
+  <div class="input-info-btn">
     <button @click="prevStep">Back</button>
     <button @click="nextStep">Next</button>
   </div>
   </div>
         <!-- Step 3: Contact Information -->
-        <div class="contact-info" v-if="currentStep === 3">
+        <div class="input-info" v-if="currentStep === 3">
     <h2>Step 3: Contact Information</h2>
 <label>Phone Number:</label>
     <vue-tel-input
@@ -160,8 +160,8 @@
     <div>
       <br>
       <label>Is your present address the same as your permanent address?</label><br>
-      <input type="checkbox" v-model="formData.same_address" />
-      <label>Yes</label>
+      <label class="label-box"><input class="checkbox" type="checkbox" v-model="formData.same_address" />
+      Yes</label>
     </div>
 
     <!-- Always show the permanent address fields -->
@@ -175,7 +175,7 @@
       <input v-model="formData.permanent_state" :readonly="formData.same_address" placeholder="Region/Province/State" required />
     
   
-  <div class="contact-info-btn">
+  <div class="input-info-btn">
     <button @click="prevStep">Back</button>
     <button @click="nextStep">Next</button>
   </div>
@@ -183,7 +183,7 @@
 
 
         <!-- Step 4: ID Verification -->
-        <div class="verification-info" v-if="currentStep === 4">
+        <div class="input-info" v-if="currentStep === 4">
           <h2>Step 4: ID Verification</h2>
 
           <label>Valid ID:</label>
@@ -214,28 +214,53 @@
 />
 <p v-if="errorMessage" style="color: red;">{{ errorMessage }}</p>
 
-<label>Upload Front Id:</label>
-<input 
-  type="file" 
-  accept="image/*" 
-  @change="handleFileUploadFrontID" 
-  required
-/>
+<div class="upload-container">
+    <!-- Front ID Upload -->
+    <label class="custom-upload">
+      <span>{{ frontFileName || "📷 Upload Front ID" }}</span>
+      <input 
+        type="file" 
+        accept="image/*" 
+        @change="handleFileUploadFrontID"
+        required
+      />
+    </label>
+    <img v-if="frontIDPreview" :src="frontIDPreview" alt="Front ID Preview" class="preview-image" />
 
-<label>Upload Back Id:</label>
-<input 
-  type="file" 
-  accept="image/*" 
-  @change="handleFileUploadBackID" 
-  required
-/>
+    <!-- Back ID Upload -->
+    <label class="custom-upload">
+      <span>{{ backFileName || "📷 Upload Back ID" }}</span>
+      <input 
+        type="file" 
+        accept="image/*" 
+        @change="handleFileUploadBackID"
+        required
+      />
+    </label>
+    <img v-if="backIDPreview" :src="backIDPreview" alt="Back ID Preview" class="preview-image" />
+  </div>
 <label>Work Industry:</label>
-          <input v-model="formData.work_industry" placeholder="Work Industry" required />
+<select v-model="formData.work_industry" @change="checkOtherIndustry" required>
+  <option value="" disabled>Select Work Industry</option>
+  <option value="IT">IT</option>
+  <option value="Healthcare">Healthcare</option>
+  <option value="Education">Education</option>
+  <option value="Finance">Finance</option>
+  <option value="Manufacturing">Manufacturing</option>
+  <option value="Others">Others</option>
+</select>
+
+<input 
+  v-if="showOtherInput" 
+  v-model="formData.work_industry" 
+  placeholder="Please specify" 
+  required 
+/>
           <label>Role:</label>
           <input v-model="formData.role" placeholder="Role" required />
           <label>Income:</label>
           <input v-model="formData.income" type="number" placeholder="Income" required />
-          <div class="verification-info-btn">
+          <div class="input-info-btn">
          <button @click="prevStep">Back</button>
          <button @click="nextStep">Next</button>
   </div>
@@ -293,6 +318,7 @@
       </form>
     </div>
   </div>
+  </div>
 </template>
 
 <script>
@@ -346,6 +372,10 @@ export default {
         privacy_consent: false,   // Required checkbox
         id: "",
       },
+      selectedIndustry: "", // This will hold the industry value
+      showOtherInput: false,
+      frontFileName: "",
+      backFileName: "",
       frontIDPreview: null,
       backIDPreview: null,
       errorMessage: '',
@@ -567,19 +597,30 @@ filteredNationalities: [],
       this.isOpen = false;  // Close dropdown
     },
     handleFileUploadFrontID(event) {
-      const file = event.target.files[0]; // Get the selected file
+      const file = event.target.files[0];
       if (file) {
-        this.formData.id_front = file;  // Store the file in the formData object
-        this.frontIDPreview = URL.createObjectURL(file); // Generate preview
+        this.formData.id_front = file;
+        this.frontIDPreview = URL.createObjectURL(file);
+        this.frontFileName = `📄 ${file.name}`; // Display the file name
       }
     },
     handleFileUploadBackID(event) {
-      const file = event.target.files[0]; // Get the selected file
+      const file = event.target.files[0];
       if (file) {
-        this.formData.id_back = file;  // Store the file in the formData object
-        this.backIDPreview = URL.createObjectURL(file); // Generate preview
+        this.formData.id_back = file;
+        this.backIDPreview = URL.createObjectURL(file);
+        this.backFileName = `📄 ${file.name}`; // Display the file name
       }
     },
+    checkOtherIndustry() {
+  if (this.formData.work_industry === "Others") {
+    this.showOtherInput = true;
+    this.formData.work_industry = ""; // Clear value for manual entry
+  } else {
+    this.showOtherInput = false;
+  }
+}
+,
     validateStep() {
   this.showErrors = true; // Enable error messages
 
@@ -661,59 +702,83 @@ filteredNationalities: [],
     },
 
     async submitForm() {
-      try {
-        // Convert the signature to a Base64 image
-        const signatureData = this.$refs.signaturePad.saveSignature();
-        const base64Image = signatureData.data; // Extract Base64 string
+  try {
+    // Convert the signature to a Base64 image
+    const signatureData = this.$refs.signaturePad.saveSignature();
 
-        // Convert Base64 to a Blob (image file)
-        const blob = this.dataURLtoBlob(base64Image);
+    if (!signatureData || !signatureData.data) {
+      console.error("Signature data is missing or undefined:", signatureData);
+      alert("Signature is missing. Please sign before submitting.");
+      return; // Stop execution if signature data is missing
+    }
 
-        // Create FormData object
-        const formData = new FormData();
-        formData.append("privacy_consent", this.formData.privacy_consent);
-        formData.append("signature", blob, "signature.png");
+    const base64Image = signatureData.data; // Extract Base64 string
 
-        // Append other form fields dynamically
-        for (const key in this.formData) {
-          if (key !== "signature") {
-            formData.append(key, this.formData[key]);
-          }
-        }
+    // Validate base64Image before calling dataURLtoBlob
+    if (typeof base64Image !== "string" || !base64Image.includes(",")) {
+      console.error("Invalid base64 image format:", base64Image);
+      alert("Error: Signature is not in the correct format.");
+      return;
+    }
 
-        // Make the POST request using axios
-        const response = await axios.post("http://192.168.1.11:8000/api/form-records/", formData, {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        });
+    // Convert Base64 to a Blob (image file)
+    const blob = this.dataURLtoBlob(base64Image);
 
-        // Get the ID from the response
-        const id = response.data.id;
+    // Create FormData object
+    const formData = new FormData();
+    formData.append("privacy_consent", this.formData.privacy_consent);
+    formData.append("signature", blob, "signature.png");
 
-        alert("Form submitted successfully!"); // Show success message
-
-        // Redirect user to QR Code page with the received ID
-        this.$router.push(`/qrcode/${id}`);
-
-      } catch (error) {
-        console.error("Error submitting form:", error); // Log the error
-        alert("An error occurred while submitting."); // Show error message
+    // Append other form fields dynamically
+    for (const key in this.formData) {
+      if (key !== "signature") {
+        formData.append(key, this.formData[key]);
       }
-    },
+    }
 
-    // Move this function inside 'methods'
-    dataURLtoBlob(dataURL) {
-      // Convert Base64 string to a Blob
-      const byteString = atob(dataURL.split(",")[1]);
-      const mimeString = dataURL.split(",")[0].split(":")[1].split(";")[0];
-      const ab = new ArrayBuffer(byteString.length);
-      const ia = new Uint8Array(ab);
-      for (let i = 0; i < byteString.length; i++) {
-        ia[i] = byteString.charCodeAt(i);
-      }
-      return new Blob([ab], { type: mimeString });
-    },
+    // Make the POST request using axios
+    const response = await axios.post("http://192.168.1.11:8000/api/form-records/", formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
+
+    // Get the ID from the response
+    const id = response.data.id;
+
+    alert("Form submitted successfully!"); // Show success message
+
+    // Redirect user to QR Code page with the received ID
+    this.$router.push(`/qrcode/${id}`);
+
+  } catch (error) {
+    console.error("Error submitting form:", error); // Log the error
+    alert("An error occurred while submitting."); // Show error message
+  }
+},
+
+dataURLtoBlob(dataURL) {
+  if (!dataURL || typeof dataURL !== "string" || !dataURL.includes(",")) {
+    console.error("Invalid dataURL provided:", dataURL);
+    return null; // Prevent further execution
+  }
+
+  try {
+    const byteString = atob(dataURL.split(",")[1]);
+    const mimeString = dataURL.split(",")[0].split(":")[1].split(";")[0];
+
+    const ab = new ArrayBuffer(byteString.length);
+    const ia = new Uint8Array(ab);
+    for (let i = 0; i < byteString.length; i++) {
+      ia[i] = byteString.charCodeAt(i);
+    }
+
+    return new Blob([ab], { type: mimeString });
+  } catch (error) {
+    console.error("Error converting dataURL to Blob:", error);
+    return null;
+  }
+},
 
     resetForm() {
       this.formData = new FormData();  // Reset FormData
@@ -787,23 +852,17 @@ filteredNationalities: [],
 <style scoped>
 .onyx-banner{
   position: relative;
-  margin-bottom: 3rem;
   max-width: 1000px;
   
 }
 .banner{
   max-width: 1000px;
  position: relative;
-  width: 70vw;
+  width: 100%;
 }
-.logo{
-  width: 10vw;
-  max-width: 100px;
-  border-radius: 100%;
-  position: absolute; /* or relative */
-  top: 12rem; /* Adjust this value */
-  left: 3rem;
 
+.onyx-header{
+  max-width: 800px;
 }
 .onyx-header h1{
   font-weight: bold;
@@ -815,6 +874,7 @@ filteredNationalities: [],
   list-style: none;
   margin-top: 1rem;
 }
+
 strong{
   color: red;
 }
@@ -825,12 +885,13 @@ strong{
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 2rem;
   background-color: #ffffff;
   color: rgb(0, 0, 0);
   border: 1px solid #b0afaf7c;
   border-radius: 3px;
-  margin-top: 5rem;
+}
+.form-group{
+  padding: 2rem;
 }
 .form-consents{
   width: 100%;
@@ -840,11 +901,12 @@ strong{
 button{
   padding: 0.5rem 1rem;
   border: none;
-  background-color: #ffeb13;
+  background-color: #007bff;
+  color: rgb(255, 255, 255);
 }
 
 button:hover{
-  background-color: #ffb013;
+  background-color: #0056b3;
 }
 .country-code-wrapper {
   position: relative;
@@ -926,7 +988,14 @@ button:hover{
   justify-content: center;
   margin-bottom: 20px;
 }
-
+.date{
+  height: 35px;
+  width: 30vw;
+  max-width: 300px;
+  background-color: white;
+  border: 1px solid grey;
+  border-radius: 3px;
+}
 .progress-bar div {
   width: 30px;
   height: 30px;
@@ -938,33 +1007,50 @@ button:hover{
 }
 
 .progress-bar .active {
-  background: green;
+  background: rgb(218, 4, 25);
   color: white;
 }
-
-/* Personal Information styling */
-.personal-info{
+.label-box{
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.input-info{
+  max-width: 900px;
   display: flex;
   flex-direction: column;
-  width: 60vw;
-  max-width: 900px;
 }
-.personal-info label{
-  margin-top: 0.7rem;
-}
-.personal-info select{
+.input-info input{
   padding: 0.5rem;
-  max-width: 320px;
+  border: 1px solid grey;
+  border-radius: 3px;
+  height: 35px;
 }
-.personal-info input{
-  padding: 0.5rem;
-  max-width: 300px;
-}
-.personal-info-btn {
-  display: flex;
-  flex-direction: row;
-  gap: 1rem;
+.input-info label{
   margin-top: 1rem;
+}
+.input-info select{
+  padding: 0.5rem;
+  height: 45px;
+  background-color: white;
+  color: black;
+  border: 1px solid grey;
+  border-radius: 3px;
+}
+.input-info-btn{
+  display: flex;
+  gap: 2rem;
+  margin-top: 1rem;
+}
+.phone-number{
+  height: 45px;
+  color: black;
+  border: 1px solid grey;
+}
+.upload{
+ background-color: white;
+ color: black;
+ border: none !important;
 }
 .dropdown {
   position: relative;
@@ -979,9 +1065,40 @@ button:hover{
   border: 1px solid grey;
   border-radius: 3px;
 }
+.upload-container {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  width: 300px;
+}
+
+.custom-upload {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  background-color: #007bff;
+  color: white;
+  font-weight: bold;
+  padding: 10px 15px;
+  border-radius: px;
+  cursor: pointer;
+  text-align: center;
+  transition: background 0.3s ease-in-out;
+}
+
+.custom-upload:hover {
+  background-color: #0056b3;
+}
+
+.custom-upload input {
+  display: none;
+}
+
 .dropdown-menu {
   position: absolute;
-  width: 100%;
+  width: 33vw;
+  max-width: 300px;
   max-height: 200px;
   overflow-y: auto;
   background: white;
@@ -997,143 +1114,10 @@ button:hover{
 }
 .dropdown-menu li:hover {
   background: #f0f0f0;
-}
-/* Contact Information styling */
-.contact-info{
-  display: flex;
-  flex-direction: column;
-  width: 60vw;
-  max-width: 900px;
-}
-.contact-info label{
-  margin-top: 0.7rem;
-}
-.contact-info input{
-  padding: 0.5rem;
-  max-width: 300px;
-}
-.contact-info-btn {
-  display: flex;
-  flex-direction: row;
-  gap: 1rem;
-  margin-top: 1rem;
-}
-/* Verification Information styling */
-.verification-info{
-  display: flex;
-  flex-direction: column;
-  width: 60vw;
-  max-width: 900px;
-}
-.verification-info input{
-  padding: 0.5rem;
-  max-width: 300px;
-}
-.verification-info label{
-  margin-top: 0.7rem;
-}
-.verification-info select{
-  padding: 0.5rem;
-  max-width: 320px;
-}
-.verification-info-btn {
-  display: flex;
-  flex-direction: row;
-  gap: 1rem;
-  margin-top: 1rem;
-}
-
-.signature-container{
-  height: 150px;
-}
-.signature-pad{
-  border: 1px solid grey;
-}
-
-.submit{
-  margin-top: 6rem;
 }
 @media (max-width: 768px) {
-  .personal-info{
-    margin-left: -4.5rem;
+  .upload-container{
+    width: 100%;
   }
-  .personal-info select{
-  height: 45px;
-  max-width: 100vw;
-  width: 75vw;
-}
-.personal-info input{
-  padding: 0.5rem;
-  max-width: 100vw;
-  width: 70vw;
-}
-
-.personal-info .date{
-  height: 40px;
-}
-.personal-info-btn {
-  display: flex;
-  flex-direction: row;
-  gap: 1rem;
-  margin-top: 1rem;
-}
-.dropdown {
-  position: relative;
-  width: 75vw;
-
-}
-
-.dropdown-menu {
-  position: absolute;
-  width: 100%;
-  max-height: 200px;
-  overflow-y: auto;
-  background: white;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
-.dropdown-menu li {
-  padding: 8px;
-  cursor: pointer;
-}
-.dropdown-menu li:hover {
-  background: #f0f0f0;
-}
-.contact-info{
-    margin-left: -4.5rem;
-  }
-  .contact-info select{
-  height: 45px;
-  max-width: 100vw;
-  width: 75vw;
-}
-.contact-info input{
-  padding: 0.5rem;
-  max-width: 100vw;
-  width: 70vw;
-}
-.phone-number{
-  max-width: 100vw;
-  width: 73.4vw;
-}
-.verification-info{
-margin-left: -4.5rem;
-}
-.verification-info select{
-  height: 45px;
-  max-width: 100vw;
-  width: 75vw;
-}
-.verification-info input{
-  padding: 0.5rem;
-  max-width: 100vw;
-  width: 70vw;
-}
-.verification-info  .date{
-  height: 40px;
-}
 }
 </style>
