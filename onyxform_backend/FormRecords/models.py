@@ -37,6 +37,8 @@ class CustomMember(AbstractUser):
     same_address = models.BooleanField(default=False)
     marketing_consent = models.BooleanField(default=False)
     privacy_consent = models.BooleanField(default=False)
+    agreeToPrivacy = models.BooleanField(default=False)
+    isOver21 = models.BooleanField(default=False)
     permanent_street_address = models.CharField(max_length=255, blank=True, null=True)
     permanent_city = models.CharField(max_length=100, blank=True, null=True)
     permanent_state = models.CharField(max_length=100, blank=True, null=True)

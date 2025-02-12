@@ -866,6 +866,7 @@ dataURLtoBlob(dataURL) {
 }
 .onyx-header h1{
   font-weight: bold;
+  color: #003D80;
 }
 .onyx-header p{
   color: grey;
@@ -1114,6 +1115,10 @@ button:hover{
 }
 .dropdown-menu li:hover {
   background: #f0f0f0;
+}
+.preview-image{
+  max-width: 400px;
+  width: 100%;
 }
 @media (max-width: 768px) {
   .upload-container{

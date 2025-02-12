@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'rest_framework.authtoken',
+    'rest_framework_simplejwt',
     'djoser',
     'FormRecords',
     'corsheaders',
@@ -63,10 +64,16 @@ CSRF_TRUSTED_ORIGINS = [
     "http://192.168.1.11:5173"
 ]
 REST_FRAMEWORK = {
-    'DEFAULT_AUTHENTICATION_CLASSES': [
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
         'rest_framework.authentication.TokenAuthentication',
-    ],
+        'rest_framework.authentication.SessionAuthentication',
+    ),
+     'DEFAULT_PERMISSION_CLASSES': (
+        'rest_framework.permissions.IsAuthenticated',  # Restrict access to authenticated users
+    ),
 }
+
 CORS_ALLOW_ALL_ORIGINS = True  # Allow all origins (use only for testing)
 CORS_ALLOW_METHODS = [
     "GET",
@@ -181,6 +188,8 @@ DATA_UPLOAD_MAX_MEMORY_SIZE = 25485760  # 10 MB (adjust as needed)
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+
 JAZZMIN_SETTINGS = {
     # title of the window (Will default to current_admin_site.site_title if absent or None)
     "site_title": "Library Admin",
@@ -191,13 +200,13 @@ JAZZMIN_SETTINGS = {
     # Title on the brand (19 chars max) (defaults to current_admin_site.site_header if absent or None)
  
     # Logo to use for your site, must be present in static files, used for brand on top left
-  
+   "site_logo": "onyx/Onyx-Casino-Logo.jpeg",
 
     # Logo to use for your site, must be present in static files, used for login form logo (defaults to site_logo)
-    "login_logo": None,
+    "login_logo": 'onyx/Onyx-Casino-Logo.jpeg',
 
     # Logo to use for login form in dark themes (defaults to login_logo)
     "login_logo_dark": None,
 
-    # CSS classes that are applied to the logo above
+    "custom_css": "onyx/custom.css", 
 }

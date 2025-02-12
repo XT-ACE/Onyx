@@ -75,38 +75,76 @@ export default {
     };
   },
   async created() {
-    const id = this.$route.params.id;
-
-    if (!id) {
-      console.error("User ID is missing in route params.");
-      return;
-    }
-
-    try {
-      const response = await fetch(`http://192.168.1.11:8000/api/form-records/${id}/`);
-
-      if (!response.ok) {
-        throw new Error(`User not found: ${id}`);
-      }
-
-      const userData = await response.json();
-      this.formData = userData;
-
-      // Generate preview URLs
-      this.frontIDPreview = this.getFullImageUrl(userData.id_front);
-      this.backIDPreview = this.getFullImageUrl(userData.id_back);
-
-    } catch (error) {
-      console.error("Error fetching user data:", error);
-    }
+    await this.checkAdminSession(); // Check if already logged into Django Admin
+    await this.fetchUserData();
   },
   methods: {
+    async checkAdminSession() {
+      try {
+        const response = await fetch("http://192.168.1.11:8000/api/authenticated-user/", {
+          method: "GET",
+          credentials: "include",  // Allows cookies to be sent for session auth
+          headers: {
+            "Content-Type": "application/json",
+          },
+        });
+
+        if (!response.ok) {
+          console.warn("User is not logged into Django Admin.");
+          return;
+        }
+
+        const data = await response.json();
+        console.log("Admin User:", data); // Log admin user data
+
+      } catch (error) {
+        console.error("Error checking admin session:", error);
+      }
+    },
+
+    async fetchUserData() {
+      const id = this.$route.params.id;
+
+      if (!id) {
+        console.error("User ID is missing in route params.");
+        alert("Invalid request. No user ID found.");
+        this.$router.push("/");
+        return;
+      }
+
+      try {
+        const response = await fetch(`http://192.168.1.11:8000/api/form-records/${id}/`, {
+          method: "GET",
+          credentials: "include",  // Ensures session cookies are sent
+          headers: {
+            "Content-Type": "application/json",
+          },
+        });
+
+        if (!response.ok) {
+          throw new Error(`Failed to fetch user: ${response.statusText}`);
+        }
+
+        const userData = await response.json();
+        this.formData = userData;
+
+        // Generate preview URLs
+        this.frontIDPreview = this.getFullImageUrl(userData.id_front);
+        this.backIDPreview = this.getFullImageUrl(userData.id_back);
+
+      } catch (error) {
+        console.error("Error fetching user data:", error);
+        alert("An error occurred while fetching user details.");
+      }
+    },
+
     getFullImageUrl(imagePath) {
       if (!imagePath) return null;
       return imagePath.startsWith("http") ? imagePath : `http://192.168.1.11:8000${imagePath}`;
     }
   }
 };
+
 </script>
   
   <style>
