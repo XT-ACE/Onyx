@@ -6,9 +6,10 @@ import Profile from './components/profile.vue';
 
 const routes = [
     { path: '/', component: SignupForm },
-    { path: '/qrcode/:id', component: qrcode }, // Update this line
+    { path: '/qrcode/:id', component: qrcode }, 
     { path: '/profile/:id', component: Profile },
 ];
+
 
 
 const router = createRouter({

@@ -60,6 +60,9 @@ MIDDLEWARE = [
 CORS_ALLOWED_ORIGINS = [
      "http://192.168.1.11:5173"  # Vue.js development server
 ]
+CORS_ALLOW_CREDENTIALS = True  # Allow cookies/session authentication
+
+
 CSRF_TRUSTED_ORIGINS = [
     "http://192.168.1.11:5173"
 ]

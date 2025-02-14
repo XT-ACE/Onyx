@@ -40,9 +40,10 @@ class FormRecordsAPIView(APIView):
 class FormRecordDetailAPIView(APIView):
     """
     API endpoint to retrieve a single form record by ID.
-    Accessible only if the user is logged in to the Django admin.
+    - Allows unauthenticated access **only** when accessed via QR code (custom header check).
+    - Requires authentication for all other actions.
     """
-    permission_classes = [IsAuthenticated]  # Ensures only authenticated users can access
+    permission_classes = [IsAuthenticated]  # Default: Authentication required
 
     def get_object(self, pk):
         try:
@@ -53,9 +54,16 @@ class FormRecordDetailAPIView(APIView):
             raise Http404
 
     def get(self, request, pk):
-        # Check if user is a staff/admin user
-        if not request.user.is_staff:
-            return Response({"error": "Admin access required"}, status=status.HTTP_403_FORBIDDEN)
+        # Check for the custom QR access header
+        if request.headers.get("X-QR-Access") == "true":
+            print("QR Access granted without authentication")  # Debugging
+            user = self.get_object(pk)
+            serializer = FormRecordsSerializer(user)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+
+        # Otherwise, enforce authentication
+        if not request.user.is_authenticated:
+            return Response({"error": "Authentication required"}, status=status.HTTP_403_FORBIDDEN)
 
         user = self.get_object(pk)
         serializer = FormRecordsSerializer(user)

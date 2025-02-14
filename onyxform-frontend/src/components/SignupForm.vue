@@ -40,7 +40,7 @@
             <p>By proceeding, you confirm that you have read, understood, and agree to abide by the Casino Filipino - Onyx Casino</p>
             <div>
               <input v-model="formData.agreeToPrivacy" type="checkbox" />
-              <label>
+              <label><span style="color: red;">*</span>
                 I agree to the 
                 <a href="https://www.pagcor.ph/docs/data-privacy-notice.pdf" target="_blank">
                   Privacy Statement
@@ -52,7 +52,7 @@
             </div>
             <div>
               <input v-model="formData.isOver21" type="checkbox" />
-              <label> I agree to the <a href="https://www.pagcor.ph/regulatory/pdf/RG-Code-of-Practice-v6.pdf" target="_blank">
+              <label><span style="color: red;">*</span> I agree to the <a href="https://www.pagcor.ph/regulatory/pdf/RG-Code-of-Practice-v6.pdf" target="_blank">
                   Terms and Conditions
                 </a></label><br>
               <span v-if="!formData.isOver21 && showErrors" class="error-message">
@@ -67,19 +67,19 @@
         <!-- Step 2: Personal Information -->
         <div class="input-info" v-if="currentStep === 2">
           <h2>Step 2: Personal Information</h2>
-          <label>Title:</label>
-          <select v-model="formData.title">
+          <label><span style="color: red;">*</span> Title:</label>
+          <select v-model="formData.title" required>
             <option value="" disabled>Title</option>
             <option value="Mr.">Mr.</option>
             <option value="Mrs.">Mrs.</option>
             <option value="Ms.">Ms.</option>
           </select>
-          <label>Last Name:</label>
+          <label><span style="color: red;">*</span> Last Name:</label>
           <input v-model="formData.last_name" placeholder="Enter your last name" required />
-          <label>First Name:</label>
+          <label><span style="color: red;">*</span> First Name:</label>
           <input v-model="formData.first_name" placeholder="Enter your first name" required />
            <!-- Date of Birth Input -->
-           <label>Birth Date:</label>
+           <label><span style="color: red;">*</span> Birth Date:</label>
     <input 
       type="date" 
       v-model="formData.date_of_birth" 
@@ -87,16 +87,16 @@
       required 
       class="date"
     />
-    <label>Place of Birth:</label>
+    <label><span style="color: red;">*</span> Place of Birth:</label>
           <input v-model="formData.place_of_birth" placeholder="Place of Birth" required />
           <label>Gender:</label>
-          <select v-model="formData.gender">
+          <select v-model="formData.gender" required>
             <option value="" disabled>Gender</option>
             <option value="Male">Male</option>
             <option value="Female">Female</option>
           </select>
             <!-- Age Input (Auto-Computed) -->
-            <label>Age:</label>
+            <label><span style="color: red;">*</span> Age:</label>
     <input 
       v-model="formData.age" 
       type="number" 
@@ -111,13 +111,14 @@
     </span>
           <div class="dropdown" ref="dropdown">
 
-            <label>Nationality:</label>
+            <label><span style="color: red;">*</span> Nationality:</label>
     <input
       type="text"
       v-model="formData.nationality"
       placeholder="Search Nationality"
       @focus="isOpen = true"
       @input="filterNationalities"
+      required
     />
     <ul v-if="isOpen" class="dropdown-menu">
       <li
@@ -137,7 +138,7 @@
         <!-- Step 3: Contact Information -->
         <div class="input-info" v-if="currentStep === 3">
     <h2>Step 3: Contact Information</h2>
-<label>Phone Number:</label>
+<label><span style="color: red;">*</span> Phone Number:</label>
     <vue-tel-input
       v-model="formData.mobile_number"
       :preferred-countries="['us', 'gb', 'ph']"
@@ -148,13 +149,13 @@
       mode="international"
       class="phone-number"
     />
-    <label>Email:</label>
+    <label><span style="color: red;">*</span> Email:</label>
     <input v-model="formData.email_address" type="email" placeholder="Email Address" required />
-    <label>Street Address:</label>
+    <label><span style="color: red;">*</span> Street Address:</label>
     <input v-model="formData.street_address" placeholder="Street Address" required />
-    <label>City:</label>
+    <label><span style="color: red;">*</span> City:</label>
     <input v-model="formData.city_residence" placeholder="City" required />
-    <label>Region | Province | State:</label>
+    <label><span style="color: red;">*</span> Region | Province | State:</label>
     <input v-model="formData.state_residence" placeholder="Enter your region/province/state" required />
 
     <div>
@@ -167,11 +168,11 @@
     <!-- Always show the permanent address fields -->
     
       <h3>Permanent Address</h3>
-      <label>Street Address:</label>
+      <label><span style="color: red;">*</span> Street Address:</label>
       <input v-model="formData.permanent_street_address" :readonly="formData.same_address" placeholder="Street Address" required />
-      <label>City:</label>
+      <label><span style="color: red;">*</span> City:</label>
       <input v-model="formData.permanent_city" :readonly="formData.same_address" placeholder="City" required />
-      <label>Region | Province | State:</label>
+      <label><span style="color: red;">*</span> Region | Province | State:</label>
       <input v-model="formData.permanent_state" :readonly="formData.same_address" placeholder="Region/Province/State" required />
     
   
@@ -186,7 +187,7 @@
         <div class="input-info" v-if="currentStep === 4">
           <h2>Step 4: ID Verification</h2>
 
-          <label>Valid ID:</label>
+          <label><span style="color: red;">*</span> Valid ID:</label>
           <select v-model="formData.valid_id" required>
   <option value="" disabled selected>Select a Valid ID</option>
   <option value="Passport">Passport</option>
@@ -201,9 +202,9 @@
   <option value="OWWA ID">OWWA ID</option>
   <option value="OFW Card">OFW Card</option>
 </select>
-         <label>ID No:</label>
+         <label><span style="color: red;">*</span> ID No:</label>
           <input v-model="formData.id_no" placeholder="Valid ID No" required />
-          <label>Valid Until:</label>
+          <label><span style="color: red;">*</span> Valid Until:</label>
           <input
   v-model="formData.valid_until"
   type="date"
@@ -239,26 +240,53 @@
     </label>
     <img v-if="backIDPreview" :src="backIDPreview" alt="Back ID Preview" class="preview-image" />
   </div>
-<label>Work Industry:</label>
+<label><span style="color: red;">*</span> Work Industry:</label>
 <select v-model="formData.work_industry" @change="checkOtherIndustry" required>
   <option value="" disabled>Select Work Industry</option>
-  <option value="IT">IT</option>
-  <option value="Healthcare">Healthcare</option>
-  <option value="Education">Education</option>
-  <option value="Finance">Finance</option>
-  <option value="Manufacturing">Manufacturing</option>
-  <option value="Others">Others</option>
+<option value="Accountancy">Accountancy</option>
+<option value="Advertising">Advertising</option>
+<option value="Agriculture">Agriculture</option>
+<option value="Architecture">Architecture</option>
+<option value="Automotive">Automotive</option>
+<option value="Banking">Banking</option>
+<option value="Construction">Construction</option>
+<option value="Customer Service">Customer Service</option>
+<option value="Education">Education</option>
+<option value="Engineering">Engineering</option>
+<option value="Entertainment">Entertainment</option>
+<option value="Finance">Finance</option>
+<option value="Food & Beverage">Food & Beverage</option>
+<option value="Government">Government</option>
+<option value="Healthcare">Healthcare</option>
+<option value="Hospitality">Hospitality</option>
+<option value="Human Resources">Human Resources</option>
+<option value="IT">IT</option>
+<option value="Legal">Legal</option>
+<option value="Logistics">Logistics</option>
+<option value="Manufacturing">Manufacturing</option>
+<option value="Marketing">Marketing</option>
+<option value="Media">Media</option>
+<option value="Non-Profit">Non-Profit</option>
+<option value="Pharmaceutical">Pharmaceutical</option>
+<option value="Real Estate">Real Estate</option>
+<option value="Retail">Retail</option>
+<option value="Sales">Sales</option>
+<option value="Telecommunications">Telecommunications</option>
+<option value="Tourism">Tourism</option>
+<option value="Transportation">Transportation</option>
+<option value="Others">Others</option>
 </select>
 
 <input 
+class="others"
   v-if="showOtherInput" 
   v-model="formData.work_industry" 
   placeholder="Please specify" 
   required 
 />
-          <label>Role:</label>
+          <label><span style="color: red;">*</span> Role:</label>
           <input v-model="formData.role" placeholder="Role" required />
-          <label>Income:</label>
+          <label><span style="color: red;">*</span> Income:</label>
           <input v-model="formData.income" type="number" placeholder="Income" required />
           <div class="input-info-btn">
          <button @click="prevStep">Back</button>
@@ -275,13 +303,13 @@
           <div class="consent-acknowledgement">
     <!-- Checkbox for Marketing Consent -->
     <label>
-      <input type="checkbox" v-model="formData.marketing_consent" />
+      <input type="checkbox" v-model="formData.marketing_consent" /><span style="color: red;">*</span>
       I agree to receive promotional offers, advertisements, and marketing communications from CF-ONYX CASINO through email, social media, and/or SMS.
     </label>
 <br><br>
     <!-- Checkbox for Data Privacy Agreement -->
     <label>
-      <input type="checkbox" v-model="formData.privacy_consent" required />
+      <input type="checkbox" v-model="formData.privacy_consent" required /><span style="color: red;">*</span>
       I have read and understood this form, including the Privacy Notice, and consent to the processing of my personal data. I acknowledge that I am fully aware of my rights under the Data Privacy Act of 2012 and understand that my consent does not preclude the existence of other lawful grounds for processing my personal data.
     </label>
   </div>
@@ -944,6 +972,14 @@ button:hover{
     appearance: none;
     
 }
+.custom-upload span{
+  display: inline-block;
+    max-width: 150px; /* Adjust based on your layout */
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    vertical-align: middle;
+}
 .form-consents p{
   font-weight: bold;
 }
@@ -1120,9 +1156,40 @@ button:hover{
   max-width: 400px;
   width: 100%;
 }
+.signature-pad{
+  border: 1px solid black;
+ 
+}
+h2, h3{
+  color: #003D80;
+}
+.review-section strong{
+  color: #003D80;
+}
+.submit{
+  gap: 2rem;
+  display: flex;
+  margin-top: 1rem;
+}
+.others{
+  margin-top: 0.5rem;
+}
 @media (max-width: 768px) {
   .upload-container{
     width: 100%;
   }
+  .signature-container{
+height: 200px;
+}
+
+.submit{
+  margin-top: 6rem;
+  gap: 2rem;
+  display: flex;
+  z-index: 1;
+}
+.progress-bar{
+  margin-top: 1rem;
+}
 }
 </style>

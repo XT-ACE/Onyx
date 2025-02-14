@@ -1,6 +1,27 @@
 <template>
     <div class="profile-container" v-if="formData">
       <div class="profile-card">
+        <div class="profile-header">
+    <img src="/images/pagcor.png" />
+    <div class="header-text">
+    <h1>ONYX CASINO</h1>
+    <h2>MEMBERSHIP CARD</h2>
+    <h2>APPLICATION FORM</h2>
+    <p>FORM NO. MD-1040</p>
+    <p>REV.6 | OCT 17, 2024</p>
+  </div>
+    <img src="/images/onyxlogo.jpg" class="onyx"/>
+  </div>
+  <div class="not-allowed-list">
+    <ul>
+    <li>♠️ <strong>Government Official</strong> or employee connected directly with the operation of the <strong>Government</strong> or any of its agencies.</li>
+    <li>♠️ Member of the <strong>Armed Forces of the Philippines</strong>, including the Army, Navy, Air Force, or the Philippine National Police.</li>
+    <li>♠️ Persons <strong>under 21</strong> years of age.</li>
+    <li>♠️ Persons included in the PAGCOR's National Database of Restricted Persons (<strong>NDRP</strong>).</li>
+    <li>♠️ Gaming Employment License (<strong>GEL</strong>) holder.</li>
+    <li>Funds or credits in the account of player who is found ineligible to play shall mean forfeiture of said funds/credits in favor of the Government.</li>
+  </ul>
+  </div>
         <h1 class="profile-title">Onyx User Profile</h1>
   
         <div class="profile-section">
@@ -54,9 +75,25 @@
   
         <div class="profile-section">
           <h2>Privacy & Consent</h2>
-          <p><strong>Marketing Consent:</strong> {{ formData.marketing_consent ? 'Yes' : 'No' }}</p>
-          <p><strong>Privacy Consent:</strong> {{ formData.privacy_consent ? 'Yes' : 'No' }}</p>
+          <p><strong>Marketing Consent:</strong> {{ formData.marketing_consent ? '✔' : ' ✘' }}</p>
+          <p><strong>Privacy Consent:</strong> {{ formData.privacy_consent ? '✔' : ' ✘' }}</p>
+          <p><strong>Terms & Conditions:</strong> {{ formData.agreeToPrivacy  ? '✔' : ' ✘' }}</p>
+          <p><strong>21 Years Old Above:</strong> {{ formData.agreeToPrivacy  ? '✔' : ' ✘' }}</p>
         </div>
+
+        <div class="verified-section">
+          <div class="member-signature">
+            <p>Signature Over Printed Name</p>
+            <img v-if="signature" :src="signature" alt="User Signature" class="signature-image"/>
+            <div class="signature-line">________________</div>
+            <p>{{ formData.title }} {{ formData.first_name }} {{ formData.last_name }}</p>
+          </div>
+          <div class="pagcor-signature">
+  <p>VERIFIED BY:</p>
+  <div class="signature-line">________________</div>
+  <p>PAGCOR I.S.</p>
+</div>
+</div>
       </div>
     </div>
   
@@ -72,6 +109,7 @@ export default {
       formData: null,  // API response data
       frontIDPreview: null, // Image preview for front ID
       backIDPreview: null,  // Image preview for back ID
+      signature: null,
     };
   },
   async created() {
@@ -131,10 +169,12 @@ export default {
         // Generate preview URLs
         this.frontIDPreview = this.getFullImageUrl(userData.id_front);
         this.backIDPreview = this.getFullImageUrl(userData.id_back);
+        this.signature = this.getFullImageUrl(userData.signature);
+
 
       } catch (error) {
         console.error("Error fetching user data:", error);
-        alert("An error occurred while fetching user details.");
+        alert("An error occurred while fetching user details. This Scanning is For Onyx Facility Only!");
       }
     },
 
@@ -148,88 +188,253 @@ export default {
 </script>
   
   <style>
-  /* General styling */
+/* PDF-like Styling */
+.profile-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background: #f0f0f0; /* Light gray to resemble a document background */
+  padding: 40px 10px;
+}
+
+.profile-card {
+  background: white;
+  max-width: 750px; /* A4-like width */
+  width: 100%;
+  padding: 40px;
+  border-radius: 0;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.15); /* Subtle shadow for paper effect */
+  font-family: 'Arial', Times, serif; /* Traditional document font */
+  color: #222;
+  border: 1px solid #ccc; /* Paper-like border */
+}
+.profile-header{
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  line-height: 1rem;
+}
+.header-text{
+  text-align: center;
+}
+.profile-header img{
+  width: 100px;
+}
+
+.header-text h1{
+  font-size: clamp(2rem, 2vw, 2.5rem);
+  font-weight: 800;
+}
+
+.header-text h2{
+  font-size: clamp(1rem, 1vw, 1.5rem);
+  line-height: 0.5rem;
+  font-weight: 800;
+}
+.header-text p{
+  line-height: 0.2rem;
+  font-size: 0.7rem;
+}
+.onyx{
+  border-radius: 100px;
+}
+.profile-title {
+  text-align: center;
+  font-size: 28px;
+  font-weight: bold;
+  text-transform: uppercase;
+  color: #000;
+  margin-bottom: 20px;
+  border-bottom: 2px solid #000;
+  padding-bottom: 10px;
+}
+
+.profile-section {
+  margin-bottom: 20px;
+  padding-bottom: 15px;
+  border-bottom: 1px dashed #888; /* Dashed divider to look like document sections */
+}
+
+.profile-section h2 {
+  font-size: 15px;
+  color: #000;
+  text-decoration: underline;
+  margin-bottom: 10px;
+}
+
+.profile-section p {
+  font-size: 13px;
+  margin: 5px 0;
+}
+.not-allowed-list li{
+  list-style: none;
+  line-height: 1.5rem;
+  font-size: 12px;
+  margin-left: -2rem;
+  
+}
+.not-allowed-list strong{
+  color: red;
+}
+strong {
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
+/* Image Styling */
+.id-images {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  margin-top: 10px;
+}
+
+.id-images div {
+  text-align: center;
+  flex: 1;
+}
+
+.id-images h3 {
+  font-size: 15px;
+  text-transform: uppercase;
+  margin-bottom: 5px;
+}
+
+.id-images img {
+  width: 250px;
+  height: 150px;
+  border: 1px solid #000;
+  object-fit: cover;
+}
+
+/* Loading State */
+.loading-container {
+  text-align: center;
+  font-size: 20px;
+  font-style: italic;
+  color: #666;
+  padding: 50px;
+}
+.verified-section {
+  position: relative;
+  margin-top: 40px;
+  padding-right: 20px;
+  display: flex;
+  justify-content: space-between;
+}
+
+.verified-section p {
+  font-size: 12px;
+  font-weight: bold;
+  text-transform: uppercase;
+
+}
+.member-signature{
+  height: 200px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.pagcor-signature{
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.pagcor-signature p{
+  margin-bottom: 3rem;
+}
+.signature-image{
+  height: 40px;
+  width: 100px;
+}
+
+/* Print Styles */
+@media print {
+  body {
+    background: white !important;
+  }
+
   .profile-container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 100vh;
-    background: linear-gradient(135deg, #f5f7fa, #c3cfe2);
-    padding: 20px;
+    box-shadow: none !important;
+    padding: 40px 10px !important; /* Keep desktop padding */
   }
-  
+
   .profile-card {
-    background: white;
-    max-width: 600px;
-    width: 100%;
-    padding: 20px;
-    border-radius: 12px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    box-shadow: none !important;
+    border: none !important; /* Keep desktop border */
+    padding: 40px !important; /* Keep desktop padding */
   }
-  
-  .profile-title {
-    text-align: center;
-    font-size: 24px;
-    font-weight: bold;
-    color: #333;
-    margin-bottom: 20px;
+
+  .profile-header {
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    line-height: 1rem !important; /* Keep desktop line height */
   }
-  
-  .profile-section {
-    margin-bottom: 15px;
-    padding-bottom: 10px;
-    border-bottom: 1px solid #eee;
+
+  .profile-header img {
+    width: 100px !important; /* Ensure desktop size */
   }
-  
-  .profile-section h2 {
-    font-size: 18px;
-    color: #555;
-    margin-bottom: 10px;
-  }
-  
-  .profile-section p {
-    font-size: 16px;
-    margin: 5px 0;
-  }
-  
-  /* Image styling */
+
   .id-images {
-    display: flex;
-    gap: 15px;
-    margin-top: 10px;
+    flex-direction: row !important; /* Keep row layout */
   }
-  
-  .id-images img {
-    width: 100px;
-    height: 60px;
-    border-radius: 5px;
-    border: 1px solid #ddd;
-    object-fit: cover;
+
+  .header-text h1 {
+    font-size: clamp(2rem, 2vw, 2.5rem) !important;
+    font-weight: 800 !important;
   }
-  
-  /* Loading State */
-  .loading-container {
-    text-align: center;
-    font-size: 18px;
-    color: #555;
-    padding: 50px;
+
+  .header-text h2 {
+    font-size: clamp(1rem, 1vw, 1.5rem) !important;
+    line-height: 0.5rem !important;
+    font-weight: 800 !important;
   }
-  
-  /* Responsive Design */
-  @media (max-width: 768px) {
-    .profile-card {
-      max-width: 100%;
-      padding: 15px;
-    }
-  
-    .id-images {
-      flex-direction: column;
-    }
-  
-    .id-img {
-      width: 100%;
-      height: auto;
-    }
+
+  .header-text p {
+    line-height: 0.2rem !important;
+    font-size: 0.7rem !important;
   }
+
+  .not-allowed-list li {
+    list-style: none !important;
+    line-height: 1.5rem !important;
+    font-size: 12px !important;
+    margin-left: -2rem !important;
+  }
+  .verified-section{
+  flex-direction: row !important;
+}
+}
+
+
+@media (max-width: 768px) {
+.profile-header{
+  line-height: 2rem;
+}
+  .profile-header img{
+    width: 80px;
+  }
+  .id-images{
+    flex-direction: column;
+  }
+  .header-text h1{
+  font-size: 1.2rem;
+  }
+  .header-text h2{
+  font-size: 0.6rem;
+  line-height: 0.5rem;
+  font-weight: 800;
+}
+.header-text p{
+  line-height: 0.3rem;
+  font-size: 0.5rem;
+}
+.verified-section{
+  flex-direction: column;
+}
+}
   </style>
   
