@@ -5,7 +5,6 @@
         <img src="/images/onyxlogo.jpg" />
         <h1 class="title">Your Onyx Member QR Code</h1>
         <qrcode-vue :value="qrCodeData" :size="200" level="H" render-as="canvas"></qrcode-vue>
-        <p>Download or screenshot your QR</p>
       </div>
       <button ref="downloadButton" @click="captureQRCode" class="download-btn">
         Download QR Code
@@ -59,7 +58,7 @@ export default {
 };
 </script>
 
-<style>
+<style scoped>
 /* General Styling */
 .container {
   display: flex;
@@ -116,5 +115,8 @@ export default {
 
 .download-btn:hover {
   background: #ffcc00;
+}
+p{
+  font-size: 0.7rem !important;
 }
 </style>

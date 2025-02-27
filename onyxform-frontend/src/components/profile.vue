@@ -22,9 +22,10 @@
     <li>Funds or credits in the account of player who is found ineligible to play shall mean forfeiture of said funds/credits in favor of the Government.</li>
   </ul>
   </div>
-        <h1 class="profile-title">Onyx User Profile</h1>
+        <h1 class="profile-title">Onyx Member Profile</h1>
   
-        <div class="profile-section">
+        <div class="profile-info">
+        <div class="personal-info">
           <h2>Personal Information</h2>
           <p><strong>Full Name:</strong> {{ formData.title }} {{ formData.first_name }} {{ formData.last_name }}</p>
           <p><strong>Age:</strong> {{ formData.age }}</p>
@@ -34,12 +35,12 @@
           <p><strong>Nationality:</strong> {{ formData.nationality }}</p>
         </div>
   
-        <div class="profile-section">
+        <div class="personal-info">
           <h2>Contact Information</h2>
           <p><strong>Email:</strong> {{ formData.email_address }}</p>
           <p><strong>Phone:</strong> {{ formData.mobile_number }}</p>
         </div>
-  
+  </div>
         <div class="profile-section">
           <h2>Address</h2>
           <p><strong>Present Address:</strong> {{ formData.street_address }}, {{ formData.city_residence }}, {{ formData.state_residence }}</p>
@@ -49,18 +50,20 @@
         </div>
   
         <div class="profile-section">
+         <div class="verification">
+          <div class="income-indentification">
           <h2>Work & Income</h2>
           <p><strong>Industry:</strong> {{ formData.work_industry }}</p>
           <p><strong>Role:</strong> {{ formData.role }}</p>
           <p><strong>Income:</strong> {{ formData.income }}</p>
         </div>
-  
-        <div class="profile-section">
+        <div class="income-indentification">
           <h2>Identification</h2>
           <p><strong>Valid ID:</strong> {{ formData.valid_id }}</p>
           <p><strong>ID Number:</strong> {{ formData.id_no }}</p>
           <p><strong>Valid Until:</strong> {{ formData.valid_until }}</p>
-  
+        </div>
+      </div>
           <div class="id-images">
         <div>
           <h3>Front ID</h3>
@@ -74,12 +77,18 @@
         </div>
   
         <div class="profile-section">
-          <h2>Privacy & Consent</h2>
+          <div class="member-agreement">
+          <h2>Member Agreement</h2>
+          <div class="consents">
           <p><strong>Marketing Consent:</strong> {{ formData.marketing_consent ? '✔' : ' ✘' }}</p>
           <p><strong>Privacy Consent:</strong> {{ formData.privacy_consent ? '✔' : ' ✘' }}</p>
+        </div>
+        <div class="conditions">
           <p><strong>Terms & Conditions:</strong> {{ formData.agreeToPrivacy  ? '✔' : ' ✘' }}</p>
           <p><strong>21 Years Old Above:</strong> {{ formData.agreeToPrivacy  ? '✔' : ' ✘' }}</p>
         </div>
+        </div>
+      </div>
 
         <div class="verified-section">
           <div class="member-signature">
@@ -128,7 +137,7 @@ export default {
         });
 
         if (!response.ok) {
-          console.warn("User is not logged into Django Admin.");
+          console.warn("Staff is not logged into Admin.");
           return;
         }
 
@@ -241,35 +250,54 @@ export default {
 }
 .profile-title {
   text-align: center;
-  font-size: 28px;
+  font-size: 24px;
   font-weight: bold;
   text-transform: uppercase;
   color: #000;
-  margin-bottom: 20px;
   border-bottom: 2px solid #000;
-  padding-bottom: 10px;
+  margin-top: -1rem;
 }
 
 .profile-section {
-  margin-bottom: 20px;
-  padding-bottom: 15px;
   border-bottom: 1px dashed #888; /* Dashed divider to look like document sections */
+  margin-top: -0.3rem;
 }
-
+.profile-section p{
+  font-size: 10px;
+}
+.profile-info{
+  display: flex;
+  justify-content: space-between;
+  border-bottom: 1px dashed #888; /* Dashed divider to look like document sections */
+  margin-top: -1rem;
+}
 .profile-section h2 {
   font-size: 15px;
   color: #000;
   text-decoration: underline;
-  margin-bottom: 10px;
 }
 
-.profile-section p {
-  font-size: 13px;
-  margin: 5px 0;
+.personal-info  h2 {
+  font-size: 15px;
+  color: #000;
+  text-decoration: underline;
+}
+.personal-info  p {
+  font-size: 10px;
+  margin-top: -0.5rem;
+}
+.verification{
+  display: flex;
+  justify-content: space-between;
+  margin-top: -0.5rem;
+}
+.verification p{
+  margin-top: -0.5rem;
+  font-size: 10px;
 }
 .not-allowed-list li{
   list-style: none;
-  line-height: 1.5rem;
+  line-height: 1rem;
   font-size: 12px;
   margin-left: -2rem;
   
@@ -280,6 +308,7 @@ export default {
 strong {
   font-weight: bold;
   text-transform: uppercase;
+  font-size: 10px;
 }
 
 /* Image Styling */
@@ -287,7 +316,6 @@ strong {
   display: flex;
   flex-direction: row;
   justify-content: space-between;
-  margin-top: 10px;
 }
 
 .id-images div {
@@ -298,12 +326,12 @@ strong {
 .id-images h3 {
   font-size: 15px;
   text-transform: uppercase;
-  margin-bottom: 5px;
+  margin-bottom: 0px;
 }
 
 .id-images img {
-  width: 250px;
-  height: 150px;
+  width: 200px;
+  height: 100px;
   border: 1px solid #000;
   object-fit: cover;
 }
@@ -318,7 +346,7 @@ strong {
 }
 .verified-section {
   position: relative;
-  margin-top: 40px;
+  margin-top: 0px;
   padding-right: 20px;
   display: flex;
   justify-content: space-between;
@@ -349,7 +377,19 @@ strong {
   height: 40px;
   width: 100px;
 }
-
+.member-agreement{
+  list-style: 1px;
+}
+.consents{
+  display: flex;
+  justify-content: space-between;
+  margin-top: -1rem;
+}
+.conditions{
+  display: flex;
+  justify-content: space-between;
+  margin-top: -1rem;
+}
 /* Print Styles */
 @media print {
   body {
@@ -400,11 +440,17 @@ strong {
 
   .not-allowed-list li {
     list-style: none !important;
-    line-height: 1.5rem !important;
-    font-size: 12px !important;
+    line-height: 1rem !important;
+    font-size: 8px !important;
     margin-left: -2rem !important;
   }
   .verified-section{
+  flex-direction: row !important;
+}
+.profile-info{
+  flex-direction: row !important;
+}
+.verification{
   flex-direction: row !important;
 }
 }
@@ -427,6 +473,12 @@ strong {
   font-size: 0.6rem;
   line-height: 0.5rem;
   font-weight: 800;
+}
+.profile-info{
+  flex-direction: column;
+}
+.verification{
+  flex-direction: column;
 }
 .header-text p{
   line-height: 0.3rem;

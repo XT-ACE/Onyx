@@ -342,7 +342,14 @@ class="others"
           <button type="submit">Submit</button>
         </div>
         </div>
-
+ <!-- Success Modal -->
+ <div v-if="showSuccessModal" class="modal-overlay">
+      <div class="modal">
+        <h3>Form Submitted Successfully!</h3>
+        <p>Your form has been submitted successfully.</p>
+        <button @click="closeModal">OK</button>
+      </div>
+    </div>
       </form>
     </div>
   </div>
@@ -366,6 +373,7 @@ export default {
       listVisible: false,
       currentStep: 1, // Track the current step
       showErrors: false, // Flag to show validation errors
+      showSuccessModal: false, // Controls modal visibility
       formData: {
         title: "",
         last_name: "",
@@ -601,17 +609,18 @@ filteredNationalities: [],
   },
   methods: {
     nextStep() {
-      if (this.validateStep()) {
-        this.currentStep++;
-      }
-    },
+  if (this.validateStep()) {
+    this.currentStep++;
+    window.scrollTo(0, 0); // Scroll to the top
+  }
+},
+prevStep() {
+  this.currentStep--;
+  window.scrollTo(0, 0); // Scroll to the top
+ },
     toggleList() {
       this.listVisible = !this.listVisible; // Toggle the visibility state
     },
-    prevStep() {
-      this.currentStep--;
-    },
-
     toggleDropdown() {
       this.isOpen = !this.isOpen;
 
@@ -730,83 +739,75 @@ filteredNationalities: [],
     },
 
     async submitForm() {
-  try {
-    // Convert the signature to a Base64 image
-    const signatureData = this.$refs.signaturePad.saveSignature();
+      try {
+        const signatureData = this.$refs.signaturePad.saveSignature();
+        if (!signatureData || !signatureData.data) {
+          console.error("Signature data is missing:", signatureData);
+          alert("Signature is missing. Please sign before submitting.");
+          return;
+        }
 
-    if (!signatureData || !signatureData.data) {
-      console.error("Signature data is missing or undefined:", signatureData);
-      alert("Signature is missing. Please sign before submitting.");
-      return; // Stop execution if signature data is missing
-    }
+        const base64Image = signatureData.data;
+        if (typeof base64Image !== "string" || !base64Image.includes(",")) {
+          console.error("Invalid base64 image format:", base64Image);
+          alert("Error: Signature is not in the correct format.");
+          return;
+        }
 
-    const base64Image = signatureData.data; // Extract Base64 string
+        const blob = this.dataURLtoBlob(base64Image);
 
-    // Validate base64Image before calling dataURLtoBlob
-    if (typeof base64Image !== "string" || !base64Image.includes(",")) {
-      console.error("Invalid base64 image format:", base64Image);
-      alert("Error: Signature is not in the correct format.");
-      return;
-    }
+        const formData = new FormData();
+        formData.append("privacy_consent", this.formData.privacy_consent);
+        formData.append("signature", blob, "signature.png");
 
-    // Convert Base64 to a Blob (image file)
-    const blob = this.dataURLtoBlob(base64Image);
+        for (const key in this.formData) {
+          if (key !== "signature") {
+            formData.append(key, this.formData[key]);
+          }
+        }
 
-    // Create FormData object
-    const formData = new FormData();
-    formData.append("privacy_consent", this.formData.privacy_consent);
-    formData.append("signature", blob, "signature.png");
+        const response = await axios.post("http://192.168.1.11:8000/api/form-records/", formData, {
+          headers: { "Content-Type": "multipart/form-data" },
+        });
 
-    // Append other form fields dynamically
-    for (const key in this.formData) {
-      if (key !== "signature") {
-        formData.append(key, this.formData[key]);
+        const id = response.data.id;
+
+        // Show success modal instead of alert
+        this.showSuccessModal = true;
+
+        // Redirect after closing the modal
+        this.redirectId = id;
+
+      } catch (error) {
+        console.error("Error submitting form:", error);
+        alert("An error occurred while submitting.");
       }
-    }
+    },
 
-    // Make the POST request using axios
-    const response = await axios.post("http://192.168.1.11:8000/api/form-records/", formData, {
-      headers: {
-        "Content-Type": "multipart/form-data",
-      },
-    });
+    dataURLtoBlob(dataURL) {
+      try {
+        const byteString = atob(dataURL.split(",")[1]);
+        const mimeString = dataURL.split(",")[0].split(":")[1].split(";")[0];
 
-    // Get the ID from the response
-    const id = response.data.id;
+        const ab = new ArrayBuffer(byteString.length);
+        const ia = new Uint8Array(ab);
+        for (let i = 0; i < byteString.length; i++) {
+          ia[i] = byteString.charCodeAt(i);
+        }
 
-    alert("Form submitted successfully!"); // Show success message
+        return new Blob([ab], { type: mimeString });
+      } catch (error) {
+        console.error("Error converting dataURL to Blob:", error);
+        return null;
+      }
+    },
 
-    // Redirect user to QR Code page with the received ID
-    this.$router.push(`/qrcode/${id}`);
-
-  } catch (error) {
-    console.error("Error submitting form:", error); // Log the error
-    alert("An error occurred while submitting."); // Show error message
-  }
-},
-
-dataURLtoBlob(dataURL) {
-  if (!dataURL || typeof dataURL !== "string" || !dataURL.includes(",")) {
-    console.error("Invalid dataURL provided:", dataURL);
-    return null; // Prevent further execution
-  }
-
-  try {
-    const byteString = atob(dataURL.split(",")[1]);
-    const mimeString = dataURL.split(",")[0].split(":")[1].split(";")[0];
-
-    const ab = new ArrayBuffer(byteString.length);
-    const ia = new Uint8Array(ab);
-    for (let i = 0; i < byteString.length; i++) {
-      ia[i] = byteString.charCodeAt(i);
-    }
-
-    return new Blob([ab], { type: mimeString });
-  } catch (error) {
-    console.error("Error converting dataURL to Blob:", error);
-    return null;
-  }
-},
+    closeModal() {
+      this.showSuccessModal = false;
+      if (this.redirectId) {
+        this.$router.push(`/qrcode/${this.redirectId}`);
+      }
+    },
 
     resetForm() {
       this.formData = new FormData();  // Reset FormData
@@ -871,7 +872,16 @@ dataURLtoBlob(dataURL) {
       } else {
         this.errorMessage = '';
       }
-    }
+    },
+    "formData.title"(newTitle) {
+      if (newTitle === "Mr.") {
+        this.formData.gender = "Male";
+      } else if (newTitle === "Ms." || newTitle === "Mrs.") {
+        this.formData.gender = "Female";
+      } else {
+        this.formData.gender = ""; // Reset gender if no title is selected
+      }
+  },
   }
 };
 </script>
@@ -1012,6 +1022,40 @@ button:hover{
 }
 .form-box{
   display: flex;
+}
+/* Modal Styles */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal {
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  text-align: center;
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.modal button {
+  margin-top: 10px;
+  padding: 10px 20px;
+  background: #007bff;
+  color: white;
+  border: none;
+  cursor: pointer;
+  border-radius: 5px;
+}
+
+.modal button:hover {
+  background: #0056b3;
 }
 .red-dot{
   color: red;
